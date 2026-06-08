@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useCurrency } from "@/hooks/useCurrency";
-import { SUPPORTED_CURRENCIES } from "@/contexts/CurrencyContext";
 import { useLocation } from "wouter";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   AlertCircle, ShieldCheck, CheckCircle2, Lock,
-  ArrowRight, RefreshCw, Zap, Package, Wifi, CreditCard, ExternalLink, ChevronDown
+  ArrowRight, RefreshCw, Zap, Package, Wifi, CreditCard, ExternalLink
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getApiBase } from "@workspace/api-client-react";
@@ -39,7 +38,7 @@ function getPaystackLabel(currency: string) {
 }
 
 export default function Checkout() {
-  const { formatPrice, formatMonthly, currency, setCurrency } = useCurrency();
+  const { formatPrice, formatMonthly, currency } = useCurrency();
   const urlParams = new URLSearchParams(window.location.search);
   const planIdParam = urlParams.get("planId");
   const planId = planIdParam ? parseInt(planIdParam, 10) : 0;
@@ -53,27 +52,6 @@ export default function Checkout() {
   const [walletLoading, setWalletLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [showCurrencyMenu, setShowCurrencyMenu] = useState(false);
-  const [currencySearch, setCurrencySearch] = useState("");
-  const currencyMenuRef = useRef<HTMLDivElement>(null);
-
-  const activeCurr = SUPPORTED_CURRENCIES.find((c) => c.code === currency) ?? SUPPORTED_CURRENCIES[0];
-  const filteredCurrencies = SUPPORTED_CURRENCIES.filter(
-    (c) =>
-      c.code.toLowerCase().includes(currencySearch.toLowerCase()) ||
-      c.label.toLowerCase().includes(currencySearch.toLowerCase())
-  );
-
-  useEffect(() => {
-    function onOutside(e: MouseEvent) {
-      if (currencyMenuRef.current && !currencyMenuRef.current.contains(e.target as Node)) {
-        setShowCurrencyMenu(false);
-        setCurrencySearch("");
-      }
-    }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
-  }, []);
 
   const { data: plan, isLoading: isLoadingPlan } = useGetPlan(planId, {
     query: { enabled: !!planId, queryKey: getGetPlanQueryKey(planId) }
@@ -385,54 +363,7 @@ export default function Checkout() {
           <div className="lg:col-span-5">
             <Card className="bg-card/50 border-primary/20 sticky top-24">
               <CardHeader className="border-b border-border">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg uppercase tracking-wider">Order Summary</CardTitle>
-                  {/* Inline currency switcher */}
-                  <div className="relative" ref={currencyMenuRef}>
-                    <button
-                      onClick={() => { setShowCurrencyMenu((v) => !v); setCurrencySearch(""); }}
-                      className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/8 border border-white/10 hover:border-primary/30 rounded-full px-3 py-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-all"
-                    >
-                      <span>{activeCurr.flag}</span>
-                      <span>{activeCurr.code}</span>
-                      <ChevronDown className={`w-3 h-3 transition-transform ${showCurrencyMenu ? "rotate-180" : ""}`} />
-                    </button>
-
-                    {showCurrencyMenu && (
-                      <div className="absolute top-full mt-2 right-0 z-50 w-64 bg-[#0a1628] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-                        <div className="p-2.5 border-b border-white/8">
-                          <input
-                            autoFocus
-                            type="text"
-                            placeholder="Search currency…"
-                            value={currencySearch}
-                            onChange={(e) => setCurrencySearch(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-gray-600 outline-none focus:border-primary/40"
-                          />
-                        </div>
-                        <div className="max-h-52 overflow-y-auto py-1">
-                          {filteredCurrencies.length === 0 && (
-                            <p className="text-xs text-gray-600 text-center py-4">No results</p>
-                          )}
-                          {filteredCurrencies.map((c) => (
-                            <button
-                              key={c.code}
-                              onClick={() => { setCurrency(c.code); setShowCurrencyMenu(false); setCurrencySearch(""); }}
-                              className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-white/5 ${
-                                c.code === currency ? "bg-primary/10 text-primary" : "text-gray-300"
-                              }`}
-                            >
-                              <span className="text-sm">{c.flag}</span>
-                              <span className="text-xs font-bold">{c.code}</span>
-                              <span className="text-xs text-gray-500 flex-1 truncate">{c.label}</span>
-                              {c.code === currency && <span className="text-primary text-xs">✓</span>}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <CardTitle className="text-lg uppercase tracking-wider">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 {isLoadingPlan ? (

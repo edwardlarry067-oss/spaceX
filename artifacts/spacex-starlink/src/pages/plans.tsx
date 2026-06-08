@@ -1,15 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useLocation } from "wouter";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "wouter";
 import { getApiBase } from "@workspace/api-client-react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2, Zap, ArrowRight, Package, CreditCard, Wifi,
-  Globe, Shield, HeadphonesIcon, CheckCheck, Minus, ChevronDown
+  Globe, Shield, HeadphonesIcon, CheckCheck, Minus
 } from "lucide-react";
 import { useCurrency } from "@/hooks/useCurrency";
-import { SUPPORTED_CURRENCIES } from "@/contexts/CurrencyContext";
 
 type Plan = {
   id: number;
@@ -94,36 +93,14 @@ function ComparisonCell({ value, highlight }: { value: string | boolean; highlig
 }
 
 export default function Plans() {
-  const { formatPrice, formatMonthly, currency, setCurrency } = useCurrency();
+  const { formatPrice, formatMonthly, currency } = useCurrency();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [payingPlanId, setPayingPlanId] = useState<number | null>(null);
   const [showComparison, setShowComparison] = useState(false);
   const [toastMsg, setToastMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [showCurrencyMenu, setShowCurrencyMenu] = useState(false);
-  const [currencySearch, setCurrencySearch] = useState("");
-  const currencyMenuRef = useRef<HTMLDivElement>(null);
   const [, navigate] = useLocation();
-
-  const activeCurr = SUPPORTED_CURRENCIES.find((c) => c.code === currency) ?? SUPPORTED_CURRENCIES[0];
-  const filteredCurrencies = SUPPORTED_CURRENCIES.filter(
-    (c) =>
-      c.code.toLowerCase().includes(currencySearch.toLowerCase()) ||
-      c.label.toLowerCase().includes(currencySearch.toLowerCase())
-  );
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function onOutside(e: MouseEvent) {
-      if (currencyMenuRef.current && !currencyMenuRef.current.contains(e.target as Node)) {
-        setShowCurrencyMenu(false);
-        setCurrencySearch("");
-      }
-    }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
-  }, []);
 
   useEffect(() => {
     fetch(`${getApiBase()}/api/plans`)
@@ -227,62 +204,22 @@ export default function Plans() {
             <Wifi className="w-3.5 h-3.5" />
             Global Coverage · 100+ Countries
           </div>
+          {currency !== "USD" && (
+            <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1.5 mb-4 text-[11px] font-bold uppercase tracking-widest text-emerald-400">
+              <Globe className="w-3 h-3" />
+              {currency === "NGN" ? "₦ Prices shown in Nigerian Naira · Pay via Paystack" :
+               currency === "GHS" ? "GH₵ Prices shown in Ghanaian Cedis · Pay via Paystack" :
+               currency === "ZAR" ? "R Prices shown in South African Rand · Pay via Paystack" :
+               currency === "KES" ? "KSh Prices shown in Kenyan Shillings · Pay via Paystack" :
+               `Prices shown in your local currency`}
+            </div>
+          )}
           <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-white mb-4">
             Starlink Plans
           </h1>
-          <p className="text-gray-400 max-w-xl mx-auto text-sm mb-6">
+          <p className="text-gray-400 max-w-xl mx-auto text-sm">
             All plans include hardware, free shipping, installation support, and 24/7 expert help. No contracts, no hidden fees.
           </p>
-
-          {/* Currency switcher */}
-          <div className="flex items-center justify-center">
-            <div className="relative" ref={currencyMenuRef}>
-              <button
-                onClick={() => { setShowCurrencyMenu((v) => !v); setCurrencySearch(""); }}
-                className="inline-flex items-center gap-2.5 bg-white/5 hover:bg-white/8 border border-white/15 hover:border-primary/40 rounded-full px-4 py-2 text-xs font-bold text-gray-300 hover:text-white transition-all"
-              >
-                <Globe className="w-3.5 h-3.5 text-primary" />
-                <span>{activeCurr.flag} {activeCurr.code}</span>
-                <span className="text-gray-500">·</span>
-                <span className="text-gray-400 font-normal">{activeCurr.label}</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform ${showCurrencyMenu ? "rotate-180" : ""}`} />
-              </button>
-
-              {showCurrencyMenu && (
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-72 bg-[#0a1628] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-                  <div className="p-3 border-b border-white/8">
-                    <input
-                      autoFocus
-                      type="text"
-                      placeholder="Search currency…"
-                      value={currencySearch}
-                      onChange={(e) => setCurrencySearch(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-600 outline-none focus:border-primary/40"
-                    />
-                  </div>
-                  <div className="max-h-60 overflow-y-auto py-1">
-                    {filteredCurrencies.length === 0 && (
-                      <p className="text-xs text-gray-600 text-center py-4">No results</p>
-                    )}
-                    {filteredCurrencies.map((c) => (
-                      <button
-                        key={c.code}
-                        onClick={() => { setCurrency(c.code); setShowCurrencyMenu(false); setCurrencySearch(""); }}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/5 ${
-                          c.code === currency ? "bg-primary/10 text-primary" : "text-gray-300"
-                        }`}
-                      >
-                        <span className="text-base">{c.flag}</span>
-                        <span className="text-xs font-bold">{c.code}</span>
-                        <span className="text-xs text-gray-500 flex-1 truncate">{c.label}</span>
-                        {c.code === currency && <span className="text-primary text-xs">✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Category filter */}
