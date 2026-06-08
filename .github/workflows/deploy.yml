@@ -1,0 +1,49 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Deploy Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install dependencies
+        working-directory: artifacts
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        working-directory: artifacts
+        run: pnpm --filter @workspace/spacex-starlink run build
+        env:
+          VITE_API_URL: ""
+
+      - name: Build API server
+        working-directory: artifacts
+        run: pnpm --filter @workspace/api-server run build
+
+      - name: Deploy to Vercel (Production)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+          working-directory: ./
