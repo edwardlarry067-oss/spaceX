@@ -30,6 +30,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     { label: "About", href: "/about" },
     { label: "FAQ", href: "/faq" },
     { label: "Support", href: "/support" },
+    { label: "Track Order", href: "/track" },
   ];
 
   return (
@@ -271,7 +272,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <div className="border-t border-white/5 pt-6 mb-5">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="text-[10px] text-gray-600 uppercase tracking-widest">We Accept:</span>
-              {["Paystack", "Visa", "Mastercard", "Amex", "Mobile Money", "Bank Transfer", "Orbit Wallet"].map((p) => (
+              {["Paystack", "Visa", "Mastercard", "Verve", "Bank Transfer", "USSD", "Orbit Wallet"].map((p) => (
                 <span key={p} className="text-[10px] text-gray-500 font-bold uppercase tracking-widest border border-white/8 rounded px-2 py-1 bg-white/2">{p}</span>
               ))}
             </div>

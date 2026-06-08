@@ -87,7 +87,8 @@ router.get("/admin/stats", adminAuth, async (req, res): Promise<void> => {
         planName: r.plan?.name ?? "",
         planCategory: r.plan?.category ?? "",
         priceMonthly: r.plan ? parseFloat(r.plan.priceMonthly) : 0,
-        paystackReference: r.sub.paystackReference,
+        stripeSubscriptionId: r.sub.stripeSubscriptionId,
+        stripeCustomerId: r.sub.stripeCustomerId,
         status: r.sub.status,
         address: r.sub.address,
         createdAt: r.sub.createdAt,
@@ -111,8 +112,8 @@ router.get("/admin/plans", adminAuth, async (req, res): Promise<void> => {
         speed: p.speed,
         priceMonthly: parseFloat(p.priceMonthly),
         features: p.features,
-        paystackPlanCode: p.paystackPlanCode,
-        paystackPaymentLink: p.paystackPaymentLink,
+        stripePriceId: p.stripePriceId,
+        stripePaymentLink: p.stripePaymentLink,
         active: p.active,
         popular: p.popular,
         description: p.description,
@@ -128,15 +129,15 @@ router.get("/admin/plans", adminAuth, async (req, res): Promise<void> => {
 
 router.post("/admin/plans", adminAuth, async (req, res): Promise<void> => {
   try {
-    const { name, category, speed, priceMonthly, features, paystackPlanCode, paystackPaymentLink, popular, description, hardwarePrice } =
+    const { name, category, speed, priceMonthly, features, stripePriceId, stripePaymentLink, popular, description, hardwarePrice } =
       req.body as {
         name: string;
         category: string;
         speed: string;
         priceMonthly: number;
         features: string[];
-        paystackPlanCode?: string;
-        paystackPaymentLink?: string;
+        stripePriceId?: string;
+        stripePaymentLink?: string;
         popular?: boolean;
         description: string;
         hardwarePrice?: number;
@@ -149,8 +150,8 @@ router.post("/admin/plans", adminAuth, async (req, res): Promise<void> => {
         speed,
         priceMonthly: String(priceMonthly),
         features: features ?? [],
-        paystackPlanCode,
-        paystackPaymentLink,
+        stripePriceId,
+        stripePaymentLink,
         popular: popular ?? false,
         description,
         hardwarePrice: hardwarePrice ? String(hardwarePrice) : null,
@@ -180,8 +181,8 @@ router.patch("/admin/plans/:id", adminAuth, async (req, res): Promise<void> => {
     if (body.speed !== undefined) updateData.speed = body.speed;
     if (body.priceMonthly !== undefined) updateData.priceMonthly = String(body.priceMonthly);
     if (body.features !== undefined) updateData.features = body.features;
-    if (body.paystackPlanCode !== undefined) updateData.paystackPlanCode = body.paystackPlanCode;
-    if (body.paystackPaymentLink !== undefined) updateData.paystackPaymentLink = body.paystackPaymentLink;
+    if (body.stripePriceId !== undefined) updateData.stripePriceId = body.stripePriceId;
+    if (body.stripePaymentLink !== undefined) updateData.stripePaymentLink = body.stripePaymentLink;
     if (body.active !== undefined) updateData.active = body.active;
     if (body.popular !== undefined) updateData.popular = body.popular;
     if (body.description !== undefined) updateData.description = body.description;
@@ -374,35 +375,130 @@ router.delete("/admin/users/:id", adminAuth, async (req, res): Promise<void> => 
 });
 
 // ── Seed default plans ─────────────────────────────────────────────────────────
+// Real 2025 Starlink plan data
+const OFFICIAL_STARLINK_PLANS = [
+  {
+    name: "Starlink Residential",
+    category: "residential",
+    speed: "25–100 Mbps",
+    priceMonthly: "120.00",
+    hardwarePrice: "599.00",
+    description: "High-speed satellite internet for homes. Unlimited data, no contracts, cancel anytime.",
+    features: ["Unlimited data", "25–100 Mbps download", "Priority residential data", "Free installation support", "Wi-Fi router included", "24/7 customer support", "No contracts"],
+    active: true,
+    popular: true,
+  },
+  {
+    name: "Starlink Roam",
+    category: "roam",
+    speed: "25–100 Mbps",
+    priceMonthly: "150.00",
+    hardwarePrice: "599.00",
+    description: "Take your Starlink anywhere on land. Use while parked, camping, or travelling.",
+    features: ["Use anywhere on land", "Pause & resume service anytime", "25–100 Mbps download", "Deprioritised on congested cells", "Wi-Fi router included", "24/7 support"],
+    active: true,
+    popular: false,
+  },
+  {
+    name: "Starlink Mobile Priority",
+    category: "roam",
+    speed: "5–50 Mbps",
+    priceMonthly: "50.00",
+    hardwarePrice: "0.00",
+    description: "50 GB of high-speed priority mobile data. Perfect add-on for Roam subscribers on the move.",
+    features: ["50 GB priority data/month", "In-motion use", "Land & sea coverage", "Add-on to Roam plan", "No extra hardware needed"],
+    active: true,
+    popular: false,
+  },
+  {
+    name: "Starlink Priority (40 GB)",
+    category: "business",
+    speed: "40–220 Mbps",
+    priceMonthly: "250.00",
+    hardwarePrice: "2500.00",
+    description: "Enterprise-grade connectivity with 40 GB priority data. Ideal for remote offices and farms.",
+    features: ["40 GB priority data/month", "40–220 Mbps download", "Priority over residential users", "SLA-backed uptime", "Dedicated business support", "Business dashboard"],
+    active: true,
+    popular: false,
+  },
+  {
+    name: "Starlink Priority (1 TB)",
+    category: "business",
+    speed: "40–220 Mbps",
+    priceMonthly: "500.00",
+    hardwarePrice: "2500.00",
+    description: "1 TB priority data for data-heavy business operations requiring consistent fast speeds.",
+    features: ["1 TB priority data/month", "40–220 Mbps download", "Priority network access", "SLA-backed uptime", "Dedicated business support", "Multi-user support"],
+    active: true,
+    popular: true,
+  },
+  {
+    name: "Starlink Priority (6 TB)",
+    category: "business",
+    speed: "100–350 Mbps",
+    priceMonthly: "1500.00",
+    hardwarePrice: "0.00",
+    description: "6 TB priority data for enterprise businesses with heavy bandwidth requirements.",
+    features: ["6 TB priority data/month", "100–350 Mbps download", "Highest priority access", "Enterprise SLA", "24/7 dedicated support", "Custom network configuration"],
+    active: true,
+    popular: false,
+  },
+  {
+    name: "Starlink Maritime (50 GB)",
+    category: "maritime",
+    speed: "40–220 Mbps",
+    priceMonthly: "250.00",
+    hardwarePrice: "2500.00",
+    description: "Reliable high-speed internet at sea. 50 GB priority data for vessels and boats.",
+    features: ["50 GB priority maritime data", "40–220 Mbps at sea", "Global ocean coverage", "In-motion marine use", "Weather-resistant hardware", "24/7 maritime support"],
+    active: true,
+    popular: false,
+  },
+  {
+    name: "Starlink Maritime (1 TB)",
+    category: "maritime",
+    speed: "100–350 Mbps",
+    priceMonthly: "1000.00",
+    hardwarePrice: "2500.00",
+    description: "High-capacity maritime internet. 1 TB priority data for commercial and charter vessels.",
+    features: ["1 TB maritime priority data", "100–350 Mbps at sea", "Global ocean coverage", "In-motion use", "Fleet management dashboard", "Dual dish support available"],
+    active: true,
+    popular: false,
+  },
+  {
+    name: "Starlink Aviation",
+    category: "aviation",
+    speed: "40–350 Mbps",
+    priceMonthly: "12500.00",
+    hardwarePrice: "150000.00",
+    description: "In-flight high-speed internet for commercial and private aircraft. Contact us for custom enterprise pricing.",
+    features: ["In-flight connectivity", "40–350 Mbps in air", "Global coverage", "Passenger Wi-Fi ready", "FAA/EASA certified hardware", "Dedicated aviation support"],
+    active: true,
+    popular: false,
+  },
+];
+
 // POST /api/admin/seed-plans
-// Inserts the 9 built-in Starlink plans into the DB only when the table is empty.
-// Idempotent — safe to call multiple times.
+// Pass { "force": true } to wipe and replace all plans with official 2025 Starlink pricing.
+// Without force, only seeds when the table is empty.
 router.post("/admin/seed-plans", adminAuth, async (req, res): Promise<void> => {
   try {
-    const existing = await db.select({ id: plansTable.id }).from(plansTable).limit(1);
-    if (existing.length > 0) {
-      res.json({ message: "Plans already seeded — no changes made.", count: 0 });
-      return;
+    const force = req.body?.force === true;
+
+    if (!force) {
+      const existing = await db.select({ id: plansTable.id }).from(plansTable).limit(1);
+      if (existing.length > 0) {
+        res.json({ message: "Plans already seeded — no changes made.", count: 0 });
+        return;
+      }
+    } else {
+      await db.delete(plansTable);
+      req.log.info("Deleted all existing plans for force-reseed");
     }
 
-    const defaultPlans = [
-      // Residential
-      { name: "Starlink Best Effort", category: "residential", speed: "Up to 100 Mbps", priceMonthly: "90.00", hardwarePrice: "499.00", description: "Entry-level satellite internet for light households.", features: ["Best-effort priority", "Suitable for light use", "No contracts"], active: true, popular: false },
-      { name: "Starlink Standard", category: "residential", speed: "Up to 200 Mbps", priceMonthly: "120.00", hardwarePrice: "499.00", description: "Standard Starlink service for homes and apartments.", features: ["Unlimited data", "Stream HD video", "Video calls", "No contracts"], active: true, popular: true },
-      { name: "Starlink Standard Plus", category: "residential", speed: "Up to 400 Mbps", priceMonthly: "180.00", hardwarePrice: "599.00", description: "Higher priority and faster speeds for demanding households.", features: ["Priority data", "4K streaming", "Multiple devices", "Gaming-grade latency"], active: true, popular: false },
-      // Roam
-      { name: "Starlink Roam", category: "roam", speed: "Up to 100 Mbps", priceMonthly: "150.00", hardwarePrice: "599.00", description: "Portable Starlink service for travel on land.", features: ["Use anywhere covered", "Pause any time", "In-motion use", "No fixed address needed"], active: true, popular: false },
-      { name: "Starlink Maritime Portable", category: "roam", speed: "Up to 220 Mbps", priceMonthly: "250.00", hardwarePrice: "2500.00", description: "Reliable connectivity on boats, yachts, and coastal vessels.", features: ["Marine-grade dish", "In-motion at sea", "Real-time tracking", "Priority network"], active: true, popular: true },
-      { name: "Starlink Aviation", category: "roam", speed: "Up to 350 Mbps", priceMonthly: "1500.00", hardwarePrice: "15000.00", description: "In-flight connectivity for private and commercial aircraft.", features: ["In-flight internet", "Passenger Wi-Fi", "Multi-beam coverage", "24/7 priority support"], active: true, popular: false },
-      // Business
-      { name: "Starlink Business", category: "business", speed: "Up to 500 Mbps", priceMonthly: "350.00", hardwarePrice: "2500.00", description: "High-speed Starlink for SMEs and commercial operations.", features: ["Priority access", "Higher speeds", "Unlimited data", "Business-grade SLA"], active: true, popular: true },
-      { name: "Starlink Enterprise", category: "business", speed: "Up to 1 Gbps", priceMonthly: "1000.00", hardwarePrice: "5000.00", description: "Enterprise connectivity for large organisations and remote sites.", features: ["Dedicated bandwidth", "Multi-site management", "Priority support", "Custom SLA"], active: true, popular: false },
-      { name: "Starlink Global Elite", category: "business", speed: "1 Gbps+", priceMonthly: "3000.00", hardwarePrice: "10000.00", description: "The highest tier of Starlink service for critical infrastructure and global operations.", features: ["Maximum bandwidth", "Redundant links", "Dedicated account manager", "Custom SLA"], active: true, popular: false },
-    ];
-
-    const inserted = await db.insert(plansTable).values(defaultPlans).returning({ id: plansTable.id });
-    req.log.info({ count: inserted.length }, "Seeded default plans");
-    res.json({ message: `Successfully seeded ${inserted.length} plans.`, count: inserted.length });
+    const inserted = await db.insert(plansTable).values(OFFICIAL_STARLINK_PLANS).returning({ id: plansTable.id });
+    req.log.info({ count: inserted.length, force }, "Seeded official Starlink plans");
+    res.json({ message: `Successfully loaded ${inserted.length} official Starlink plans.`, count: inserted.length });
   } catch (err) {
     req.log.error({ err }, "Failed to seed plans");
     res.status(500).json({ error: "Failed to seed plans" });

@@ -18920,14 +18920,14 @@ var require_etag = __commonJS({
   "../node_modules/.pnpm/etag@1.8.1/node_modules/etag/index.js"(exports, module) {
     "use strict";
     module.exports = etag;
-    var crypto3 = __require("crypto");
+    var crypto2 = __require("crypto");
     var Stats = __require("fs").Stats;
     var toString = Object.prototype.toString;
     function entitytag(entity) {
       if (entity.length === 0) {
         return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
       }
-      var hash = crypto3.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
+      var hash = crypto2.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
       var len = typeof entity === "string" ? Buffer.byteLength(entity, "utf8") : entity.length;
       return '"' + len.toString(16) + "-" + hash + '"';
     }
@@ -22402,17 +22402,17 @@ var require_content_disposition = __commonJS({
 // ../node_modules/.pnpm/cookie-signature@1.2.2/node_modules/cookie-signature/index.js
 var require_cookie_signature = __commonJS({
   "../node_modules/.pnpm/cookie-signature@1.2.2/node_modules/cookie-signature/index.js"(exports) {
-    var crypto3 = __require("crypto");
+    var crypto2 = __require("crypto");
     exports.sign = function(val, secret) {
       if ("string" != typeof val) throw new TypeError("Cookie value must be provided as a string.");
       if (null == secret) throw new TypeError("Secret key must be provided.");
-      return val + "." + crypto3.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
+      return val + "." + crypto2.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
     };
     exports.unsign = function(input, secret) {
       if ("string" != typeof input) throw new TypeError("Signed cookie string must be provided.");
       if (null == secret) throw new TypeError("Secret key must be provided.");
       var tentativeValue = input.slice(0, input.lastIndexOf(".")), expectedInput = exports.sign(tentativeValue, secret), expectedBuffer = Buffer.from(expectedInput), inputBuffer = Buffer.from(input);
-      return expectedBuffer.length === inputBuffer.length && crypto3.timingSafeEqual(expectedBuffer, inputBuffer) ? tentativeValue : false;
+      return expectedBuffer.length === inputBuffer.length && crypto2.timingSafeEqual(expectedBuffer, inputBuffer) ? tentativeValue : false;
     };
   }
 });
@@ -35163,14 +35163,14 @@ var require_buffer_equal_constant_time = __commonJS({
 var require_jwa = __commonJS({
   "../node_modules/.pnpm/jwa@2.0.1/node_modules/jwa/index.js"(exports, module) {
     var Buffer2 = require_safe_buffer().Buffer;
-    var crypto3 = __require("crypto");
+    var crypto2 = __require("crypto");
     var formatEcdsa = require_ecdsa_sig_formatter();
     var util2 = __require("util");
     var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".';
     var MSG_INVALID_SECRET = "secret must be a string or buffer";
     var MSG_INVALID_VERIFIER_KEY = "key must be a string or a buffer";
     var MSG_INVALID_SIGNER_KEY = "key must be a string, a buffer or an object";
-    var supportsKeyObjects = typeof crypto3.createPublicKey === "function";
+    var supportsKeyObjects = typeof crypto2.createPublicKey === "function";
     if (supportsKeyObjects) {
       MSG_INVALID_VERIFIER_KEY += " or a KeyObject";
       MSG_INVALID_SECRET += "or a KeyObject";
@@ -35260,17 +35260,17 @@ var require_jwa = __commonJS({
       return function sign(thing, secret) {
         checkIsSecretKey(secret);
         thing = normalizeInput(thing);
-        var hmac2 = crypto3.createHmac("sha" + bits, secret);
+        var hmac2 = crypto2.createHmac("sha" + bits, secret);
         var sig = (hmac2.update(thing), hmac2.digest("base64"));
         return fromBase64(sig);
       };
     }
     var bufferEqual;
-    var timingSafeEqual = "timingSafeEqual" in crypto3 ? function timingSafeEqual2(a, b2) {
+    var timingSafeEqual = "timingSafeEqual" in crypto2 ? function timingSafeEqual2(a, b2) {
       if (a.byteLength !== b2.byteLength) {
         return false;
       }
-      return crypto3.timingSafeEqual(a, b2);
+      return crypto2.timingSafeEqual(a, b2);
     } : function timingSafeEqual2(a, b2) {
       if (!bufferEqual) {
         bufferEqual = require_buffer_equal_constant_time();
@@ -35287,7 +35287,7 @@ var require_jwa = __commonJS({
       return function sign(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto3.createSign("RSA-SHA" + bits);
+        var signer = crypto2.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign(privateKey, "base64"));
         return fromBase64(sig);
       };
@@ -35297,7 +35297,7 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase64(signature);
-        var verifier = crypto3.createVerify("RSA-SHA" + bits);
+        var verifier = crypto2.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify(publicKey, signature, "base64");
       };
@@ -35306,11 +35306,11 @@ var require_jwa = __commonJS({
       return function sign(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto3.createSign("RSA-SHA" + bits);
+        var signer = crypto2.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign({
           key: privateKey,
-          padding: crypto3.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto3.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto2.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto2.constants.RSA_PSS_SALTLEN_DIGEST
         }, "base64"));
         return fromBase64(sig);
       };
@@ -35320,12 +35320,12 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase64(signature);
-        var verifier = crypto3.createVerify("RSA-SHA" + bits);
+        var verifier = crypto2.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify({
           key: publicKey,
-          padding: crypto3.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto3.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto2.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto2.constants.RSA_PSS_SALTLEN_DIGEST
         }, signature, "base64");
       };
     }
@@ -38651,7 +38651,7 @@ var require_jsonwebtoken = __commonJS({
 });
 
 // src/app.ts
-var import_express16 = __toESM(require_express2(), 1);
+var import_express15 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 
 // ../node_modules/.pnpm/helmet@8.2.0/node_modules/helmet/index.mjs
@@ -39202,7 +39202,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // src/routes/index.ts
-var import_express15 = __toESM(require_express2(), 1);
+var import_express14 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -53102,7 +53102,8 @@ router5.get("/admin/stats", adminAuth, async (req, res) => {
         planName: r.plan?.name ?? "",
         planCategory: r.plan?.category ?? "",
         priceMonthly: r.plan ? parseFloat(r.plan.priceMonthly) : 0,
-        paystackReference: r.sub.paystackReference,
+        stripeSubscriptionId: r.sub.stripeSubscriptionId,
+        stripeCustomerId: r.sub.stripeCustomerId,
         status: r.sub.status,
         address: r.sub.address,
         createdAt: r.sub.createdAt,
@@ -53125,8 +53126,8 @@ router5.get("/admin/plans", adminAuth, async (req, res) => {
         speed: p.speed,
         priceMonthly: parseFloat(p.priceMonthly),
         features: p.features,
-        paystackPlanCode: p.paystackPlanCode,
-        paystackPaymentLink: p.paystackPaymentLink,
+        stripePriceId: p.stripePriceId,
+        stripePaymentLink: p.stripePaymentLink,
         active: p.active,
         popular: p.popular,
         description: p.description,
@@ -53141,15 +53142,15 @@ router5.get("/admin/plans", adminAuth, async (req, res) => {
 });
 router5.post("/admin/plans", adminAuth, async (req, res) => {
   try {
-    const { name, category, speed, priceMonthly, features, paystackPlanCode, paystackPaymentLink, popular, description, hardwarePrice } = req.body;
+    const { name, category, speed, priceMonthly, features, stripePriceId, stripePaymentLink, popular, description, hardwarePrice } = req.body;
     const [plan] = await db.insert(plansTable).values({
       name,
       category,
       speed,
       priceMonthly: String(priceMonthly),
       features: features ?? [],
-      paystackPlanCode,
-      paystackPaymentLink,
+      stripePriceId,
+      stripePaymentLink,
       popular: popular ?? false,
       description,
       hardwarePrice: hardwarePrice ? String(hardwarePrice) : null
@@ -53177,8 +53178,8 @@ router5.patch("/admin/plans/:id", adminAuth, async (req, res) => {
     if (body.speed !== void 0) updateData.speed = body.speed;
     if (body.priceMonthly !== void 0) updateData.priceMonthly = String(body.priceMonthly);
     if (body.features !== void 0) updateData.features = body.features;
-    if (body.paystackPlanCode !== void 0) updateData.paystackPlanCode = body.paystackPlanCode;
-    if (body.paystackPaymentLink !== void 0) updateData.paystackPaymentLink = body.paystackPaymentLink;
+    if (body.stripePriceId !== void 0) updateData.stripePriceId = body.stripePriceId;
+    if (body.stripePaymentLink !== void 0) updateData.stripePaymentLink = body.stripePaymentLink;
     if (body.active !== void 0) updateData.active = body.active;
     if (body.popular !== void 0) updateData.popular = body.popular;
     if (body.description !== void 0) updateData.description = body.description;
@@ -53326,30 +53327,123 @@ router5.delete("/admin/users/:id", adminAuth, async (req, res) => {
     res.status(500).json({ error: "Failed to delete user" });
   }
 });
+var OFFICIAL_STARLINK_PLANS = [
+  {
+    name: "Starlink Residential",
+    category: "residential",
+    speed: "25\u2013100 Mbps",
+    priceMonthly: "120.00",
+    hardwarePrice: "599.00",
+    description: "High-speed satellite internet for homes. Unlimited data, no contracts, cancel anytime.",
+    features: ["Unlimited data", "25\u2013100 Mbps download", "Priority residential data", "Free installation support", "Wi-Fi router included", "24/7 customer support", "No contracts"],
+    active: true,
+    popular: true
+  },
+  {
+    name: "Starlink Roam",
+    category: "roam",
+    speed: "25\u2013100 Mbps",
+    priceMonthly: "150.00",
+    hardwarePrice: "599.00",
+    description: "Take your Starlink anywhere on land. Use while parked, camping, or travelling.",
+    features: ["Use anywhere on land", "Pause & resume service anytime", "25\u2013100 Mbps download", "Deprioritised on congested cells", "Wi-Fi router included", "24/7 support"],
+    active: true,
+    popular: false
+  },
+  {
+    name: "Starlink Mobile Priority",
+    category: "roam",
+    speed: "5\u201350 Mbps",
+    priceMonthly: "50.00",
+    hardwarePrice: "0.00",
+    description: "50 GB of high-speed priority mobile data. Perfect add-on for Roam subscribers on the move.",
+    features: ["50 GB priority data/month", "In-motion use", "Land & sea coverage", "Add-on to Roam plan", "No extra hardware needed"],
+    active: true,
+    popular: false
+  },
+  {
+    name: "Starlink Priority (40 GB)",
+    category: "business",
+    speed: "40\u2013220 Mbps",
+    priceMonthly: "250.00",
+    hardwarePrice: "2500.00",
+    description: "Enterprise-grade connectivity with 40 GB priority data. Ideal for remote offices and farms.",
+    features: ["40 GB priority data/month", "40\u2013220 Mbps download", "Priority over residential users", "SLA-backed uptime", "Dedicated business support", "Business dashboard"],
+    active: true,
+    popular: false
+  },
+  {
+    name: "Starlink Priority (1 TB)",
+    category: "business",
+    speed: "40\u2013220 Mbps",
+    priceMonthly: "500.00",
+    hardwarePrice: "2500.00",
+    description: "1 TB priority data for data-heavy business operations requiring consistent fast speeds.",
+    features: ["1 TB priority data/month", "40\u2013220 Mbps download", "Priority network access", "SLA-backed uptime", "Dedicated business support", "Multi-user support"],
+    active: true,
+    popular: true
+  },
+  {
+    name: "Starlink Priority (6 TB)",
+    category: "business",
+    speed: "100\u2013350 Mbps",
+    priceMonthly: "1500.00",
+    hardwarePrice: "0.00",
+    description: "6 TB priority data for enterprise businesses with heavy bandwidth requirements.",
+    features: ["6 TB priority data/month", "100\u2013350 Mbps download", "Highest priority access", "Enterprise SLA", "24/7 dedicated support", "Custom network configuration"],
+    active: true,
+    popular: false
+  },
+  {
+    name: "Starlink Maritime (50 GB)",
+    category: "maritime",
+    speed: "40\u2013220 Mbps",
+    priceMonthly: "250.00",
+    hardwarePrice: "2500.00",
+    description: "Reliable high-speed internet at sea. 50 GB priority data for vessels and boats.",
+    features: ["50 GB priority maritime data", "40\u2013220 Mbps at sea", "Global ocean coverage", "In-motion marine use", "Weather-resistant hardware", "24/7 maritime support"],
+    active: true,
+    popular: false
+  },
+  {
+    name: "Starlink Maritime (1 TB)",
+    category: "maritime",
+    speed: "100\u2013350 Mbps",
+    priceMonthly: "1000.00",
+    hardwarePrice: "2500.00",
+    description: "High-capacity maritime internet. 1 TB priority data for commercial and charter vessels.",
+    features: ["1 TB maritime priority data", "100\u2013350 Mbps at sea", "Global ocean coverage", "In-motion use", "Fleet management dashboard", "Dual dish support available"],
+    active: true,
+    popular: false
+  },
+  {
+    name: "Starlink Aviation",
+    category: "aviation",
+    speed: "40\u2013350 Mbps",
+    priceMonthly: "12500.00",
+    hardwarePrice: "150000.00",
+    description: "In-flight high-speed internet for commercial and private aircraft. Contact us for custom enterprise pricing.",
+    features: ["In-flight connectivity", "40\u2013350 Mbps in air", "Global coverage", "Passenger Wi-Fi ready", "FAA/EASA certified hardware", "Dedicated aviation support"],
+    active: true,
+    popular: false
+  }
+];
 router5.post("/admin/seed-plans", adminAuth, async (req, res) => {
   try {
-    const existing = await db.select({ id: plansTable.id }).from(plansTable).limit(1);
-    if (existing.length > 0) {
-      res.json({ message: "Plans already seeded \u2014 no changes made.", count: 0 });
-      return;
+    const force = req.body?.force === true;
+    if (!force) {
+      const existing = await db.select({ id: plansTable.id }).from(plansTable).limit(1);
+      if (existing.length > 0) {
+        res.json({ message: "Plans already seeded \u2014 no changes made.", count: 0 });
+        return;
+      }
+    } else {
+      await db.delete(plansTable);
+      req.log.info("Deleted all existing plans for force-reseed");
     }
-    const defaultPlans = [
-      // Residential
-      { name: "Starlink Best Effort", category: "residential", speed: "Up to 100 Mbps", priceMonthly: "90.00", hardwarePrice: "499.00", description: "Entry-level satellite internet for light households.", features: ["Best-effort priority", "Suitable for light use", "No contracts"], active: true, popular: false },
-      { name: "Starlink Standard", category: "residential", speed: "Up to 200 Mbps", priceMonthly: "120.00", hardwarePrice: "499.00", description: "Standard Starlink service for homes and apartments.", features: ["Unlimited data", "Stream HD video", "Video calls", "No contracts"], active: true, popular: true },
-      { name: "Starlink Standard Plus", category: "residential", speed: "Up to 400 Mbps", priceMonthly: "180.00", hardwarePrice: "599.00", description: "Higher priority and faster speeds for demanding households.", features: ["Priority data", "4K streaming", "Multiple devices", "Gaming-grade latency"], active: true, popular: false },
-      // Roam
-      { name: "Starlink Roam", category: "roam", speed: "Up to 100 Mbps", priceMonthly: "150.00", hardwarePrice: "599.00", description: "Portable Starlink service for travel on land.", features: ["Use anywhere covered", "Pause any time", "In-motion use", "No fixed address needed"], active: true, popular: false },
-      { name: "Starlink Maritime Portable", category: "roam", speed: "Up to 220 Mbps", priceMonthly: "250.00", hardwarePrice: "2500.00", description: "Reliable connectivity on boats, yachts, and coastal vessels.", features: ["Marine-grade dish", "In-motion at sea", "Real-time tracking", "Priority network"], active: true, popular: true },
-      { name: "Starlink Aviation", category: "roam", speed: "Up to 350 Mbps", priceMonthly: "1500.00", hardwarePrice: "15000.00", description: "In-flight connectivity for private and commercial aircraft.", features: ["In-flight internet", "Passenger Wi-Fi", "Multi-beam coverage", "24/7 priority support"], active: true, popular: false },
-      // Business
-      { name: "Starlink Business", category: "business", speed: "Up to 500 Mbps", priceMonthly: "350.00", hardwarePrice: "2500.00", description: "High-speed Starlink for SMEs and commercial operations.", features: ["Priority access", "Higher speeds", "Unlimited data", "Business-grade SLA"], active: true, popular: true },
-      { name: "Starlink Enterprise", category: "business", speed: "Up to 1 Gbps", priceMonthly: "1000.00", hardwarePrice: "5000.00", description: "Enterprise connectivity for large organisations and remote sites.", features: ["Dedicated bandwidth", "Multi-site management", "Priority support", "Custom SLA"], active: true, popular: false },
-      { name: "Starlink Global Elite", category: "business", speed: "1 Gbps+", priceMonthly: "3000.00", hardwarePrice: "10000.00", description: "The highest tier of Starlink service for critical infrastructure and global operations.", features: ["Maximum bandwidth", "Redundant links", "Dedicated account manager", "Custom SLA"], active: true, popular: false }
-    ];
-    const inserted = await db.insert(plansTable).values(defaultPlans).returning({ id: plansTable.id });
-    req.log.info({ count: inserted.length }, "Seeded default plans");
-    res.json({ message: `Successfully seeded ${inserted.length} plans.`, count: inserted.length });
+    const inserted = await db.insert(plansTable).values(OFFICIAL_STARLINK_PLANS).returning({ id: plansTable.id });
+    req.log.info({ count: inserted.length, force }, "Seeded official Starlink plans");
+    res.json({ message: `Successfully loaded ${inserted.length} official Starlink plans.`, count: inserted.length });
   } catch (err) {
     req.log.error({ err }, "Failed to seed plans");
     res.status(500).json({ error: "Failed to seed plans" });
@@ -54073,14 +54167,16 @@ var BUNDLES = [
 ];
 
 // src/routes/paystack.ts
-var import_express11 = __toESM(require_express2(), 1);
-import crypto2 from "node:crypto";
 var router10 = (0, import_express10.Router)();
-var PAYSTACK_BASE = "https://api.paystack.co";
-function getPaystackKey() {
-  const key = process.env["PAYSTACK_SECRET_KEY"] ?? "";
-  if (!key) throw new Error("PAYSTACK_SECRET_KEY is not configured");
-  return key;
+var PSK = () => process.env["PAYSTACK_SECRET_KEY"] ?? "";
+var PSK_BASE = "https://api.paystack.co";
+var DEFAULT_CURRENCY = process.env["PAYSTACK_CURRENCY"] ?? "USD";
+var SUPPORTED_CURRENCIES = /* @__PURE__ */ new Set(["NGN", "USD", "GHS", "ZAR", "KES"]);
+function resolveCurrency(requested) {
+  if (requested && SUPPORTED_CURRENCIES.has(requested.toUpperCase())) {
+    return requested.toUpperCase();
+  }
+  return DEFAULT_CURRENCY;
 }
 var APP_URL2 = (() => {
   const url = process.env["APP_URL"] ?? process.env["REPLIT_DEV_DOMAIN"];
@@ -54088,40 +54184,41 @@ var APP_URL2 = (() => {
   return "https://www.orbitfuture.com";
 })();
 var PLAN_PRICES = {
-  1: { name: "Starlink Best Effort", priceMonthly: 90, speed: "5\u2013100 Mbps" },
-  2: { name: "Starlink Standard", priceMonthly: 120, speed: "50\u2013250 Mbps" },
-  3: { name: "Starlink Standard Plus", priceMonthly: 150, speed: "100\u2013300 Mbps" },
-  4: { name: "Starlink Roam", priceMonthly: 150, speed: "50\u2013200 Mbps" },
-  5: { name: "Starlink Maritime", priceMonthly: 250, speed: "100\u2013350 Mbps" },
-  6: { name: "Starlink Aviation", priceMonthly: 500, speed: "100\u2013350 Mbps" },
-  7: { name: "Starlink Business", priceMonthly: 500, speed: "200\u2013500 Mbps" },
-  8: { name: "Starlink Enterprise", priceMonthly: 1500, speed: "500 Mbps\u20131 Gbps" },
-  9: { name: "Starlink Global Elite", priceMonthly: 3e3, speed: "1 Gbps+" }
+  1: { name: "Starlink Residential", priceMonthly: 120, speed: "25\u2013100 Mbps" },
+  2: { name: "Starlink Roam", priceMonthly: 150, speed: "25\u2013100 Mbps" },
+  3: { name: "Starlink Mobile Priority", priceMonthly: 50, speed: "5\u201350 Mbps" },
+  4: { name: "Starlink Priority (40GB)", priceMonthly: 250, speed: "40\u2013220 Mbps" },
+  5: { name: "Starlink Priority (1TB)", priceMonthly: 500, speed: "40\u2013220 Mbps" },
+  6: { name: "Starlink Priority (6TB)", priceMonthly: 1500, speed: "100\u2013350 Mbps" },
+  7: { name: "Starlink Maritime (50GB)", priceMonthly: 250, speed: "40\u2013220 Mbps" },
+  8: { name: "Starlink Maritime (1TB)", priceMonthly: 1e3, speed: "100\u2013350 Mbps" },
+  9: { name: "Starlink Aviation", priceMonthly: 12500, speed: "40\u2013350 Mbps" }
 };
-function generateRef(prefix) {
-  return `${prefix}_${Date.now()}_${crypto2.randomBytes(6).toString("hex")}`;
+function paystackHeaders() {
+  return {
+    Authorization: `Bearer ${PSK()}`,
+    "Content-Type": "application/json"
+  };
 }
-async function paystackInitialize(payload) {
-  const res = await fetch(`${PAYSTACK_BASE}/transaction/initialize`, {
+function toSubunit(amount) {
+  return Math.round(amount * 100);
+}
+function uniqueRef(prefix) {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+async function paystackInit(body) {
+  const r = await fetch(`${PSK_BASE}/transaction/initialize`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${getPaystackKey()}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ ...payload, currency: payload.currency ?? "USD" })
+    headers: paystackHeaders(),
+    body: JSON.stringify(body)
   });
-  const json2 = await res.json();
-  if (!json2.status) throw new Error(json2.message ?? "Paystack initialization failed");
-  const data = json2.data;
-  return { authorization_url: data.authorization_url, reference: data.reference };
+  return r.json();
 }
 async function paystackVerify(reference) {
-  const res = await fetch(`${PAYSTACK_BASE}/transaction/verify/${encodeURIComponent(reference)}`, {
-    headers: { Authorization: `Bearer ${getPaystackKey()}` }
+  const r = await fetch(`${PSK_BASE}/transaction/verify/${encodeURIComponent(reference)}`, {
+    headers: paystackHeaders()
   });
-  const json2 = await res.json();
-  if (!json2.status) throw new Error(json2.message ?? "Paystack verification failed");
-  return json2.data;
+  return r.json();
 }
 async function getOrCreateWallet2(email) {
   const [existing] = await db.select().from(walletsTable).where(eq(walletsTable.email, email)).limit(1);
@@ -54129,7 +54226,7 @@ async function getOrCreateWallet2(email) {
   const [created] = await db.insert(walletsTable).values({ email, balance: 0 }).returning();
   return created;
 }
-async function creditTokens(email, tokens, bundleName, reference) {
+async function creditTokensViaPaystack(email, tokens, bundleName, reference) {
   const wallet = await getOrCreateWallet2(email);
   const [updated] = await db.update(walletsTable).set({ balance: wallet.balance + tokens, updatedAt: /* @__PURE__ */ new Date() }).where(eq(walletsTable.id, wallet.id)).returning();
   await db.insert(walletTransactionsTable).values({
@@ -54150,8 +54247,8 @@ router10.post("/paystack-token-buy", requireAuth, async (req, res) => {
       res.status(400).json({ error: "bundleId is required" });
       return;
     }
-    const paystackKey = process.env["PAYSTACK_SECRET_KEY"];
-    if (!paystackKey) {
+    const key = PSK();
+    if (!key) {
       res.status(503).json({ error: "Payment gateway not configured." });
       return;
     }
@@ -54161,11 +54258,11 @@ router10.post("/paystack-token-buy", requireAuth, async (req, res) => {
       return;
     }
     const amountUsd = bundle.prices["USD"];
-    const reference = generateRef("tok");
-    const { authorization_url } = await paystackInitialize({
+    const reference = uniqueRef("tok");
+    const result = await paystackInit({
       email: req.user.email,
-      amount: Math.round(amountUsd * 100),
-      currency: "USD",
+      amount: toSubunit(amountUsd),
+      currency: CURRENCY,
       reference,
       callback_url: `${APP_URL2}/wallet?paystack_token_success=1&reference=${reference}`,
       metadata: {
@@ -54177,7 +54274,11 @@ router10.post("/paystack-token-buy", requireAuth, async (req, res) => {
         customerEmail: req.user.email
       }
     });
-    res.json({ paymentLink: authorization_url, reference });
+    if (!result.status || !result.data?.authorization_url) {
+      res.status(500).json({ error: result.message || "Failed to create payment link" });
+      return;
+    }
+    res.json({ paymentLink: result.data.authorization_url, reference });
   } catch (err) {
     req.log?.error?.({ err }, "paystack-token-buy error");
     res.status(500).json({ error: "Failed to create checkout session" });
@@ -54190,33 +54291,33 @@ router10.post("/paystack-token-verify", requireAuth, async (req, res) => {
       res.status(400).json({ error: "reference is required" });
       return;
     }
-    const tx = await paystackVerify(reference);
-    if (tx.status !== "success") {
-      res.status(400).json({ error: "Payment not completed", status: tx.status });
+    const result = await paystackVerify(reference);
+    if (!result.status || result.data?.status !== "success") {
+      res.status(400).json({ error: "Payment not completed", status: result.data?.status });
       return;
     }
-    const meta = tx.metadata ?? {};
+    const meta = result.data.metadata ?? {};
     if (meta.type !== "token_bundle") {
       res.status(400).json({ error: "Invalid transaction type" });
       return;
     }
     const [existing] = await db.select().from(walletTransactionsTable).where(eq(walletTransactionsTable.reference, reference)).limit(1);
-    const tokens = parseInt(String(meta.tokens ?? "0")) || 0;
-    const bundleName = String(meta.bundleName ?? "Bundle");
-    const email = String(meta.customerEmail ?? req.user.email);
+    const tokens = parseInt(meta.tokens ?? "0") || 0;
+    const bundleName = meta.bundleName ?? "Bundle";
+    const email = meta.customerEmail ?? req.user.email;
     if (existing) {
       const wallet = await getOrCreateWallet2(email);
       res.json({ success: true, tokensAdded: tokens, newBalance: wallet.balance, alreadyProcessed: true });
       return;
     }
-    const newBalance = await creditTokens(email, tokens, bundleName, reference);
+    const newBalance = await creditTokensViaPaystack(email, tokens, bundleName, reference);
     sendAdminPaymentAlert({
       type: "token",
       customerName: email,
       customerEmail: email,
       item: `${bundleName} \u2014 ${tokens.toLocaleString()} tokens`,
-      amountPaid: tx.amount / 100,
-      currency: tx.currency?.toUpperCase() ?? "USD",
+      amountPaid: (result.data.amount ?? 0) / 100,
+      currency: result.data.currency ?? CURRENCY,
       transactionId: reference
     }).catch(() => {
     });
@@ -54228,20 +54329,23 @@ router10.post("/paystack-token-verify", requireAuth, async (req, res) => {
 });
 router10.post("/paystack-plan-pay", async (req, res) => {
   try {
-    const { planId, email, name, address } = req.body;
+    const { planId, email, name, address, currency: requestedCurrency } = req.body;
     if (!planId || !email?.trim() || !name?.trim()) {
       res.status(400).json({ error: "planId, email, and name are required" });
       return;
     }
-    const paystackKey = process.env["PAYSTACK_SECRET_KEY"];
-    if (!paystackKey) {
+    const key = PSK();
+    if (!key) {
       res.status(503).json({ error: "Payment gateway not configured. Please contact support." });
       return;
     }
+    const currency = resolveCurrency(requestedCurrency);
     let planName;
     let priceMonthly;
     let planSpeed;
     let hardwarePrice = 0;
+    let planCategory = "";
+    let localPrices = null;
     try {
       const [dbPlan] = await db.select().from(plansTable).where(eq(plansTable.id, planId)).limit(1);
       if (dbPlan) {
@@ -54249,6 +54353,8 @@ router10.post("/paystack-plan-pay", async (req, res) => {
         priceMonthly = parseFloat(String(dbPlan.priceMonthly));
         planSpeed = dbPlan.speed;
         hardwarePrice = dbPlan.hardwarePrice ? parseFloat(String(dbPlan.hardwarePrice)) : 0;
+        planCategory = dbPlan.category;
+        localPrices = dbPlan.localPrices ?? null;
       } else {
         throw new Error("not in db");
       }
@@ -54262,28 +54368,42 @@ router10.post("/paystack-plan-pay", async (req, res) => {
       priceMonthly = fallback.priceMonthly;
       planSpeed = fallback.speed;
     }
-    const totalAmount = priceMonthly + hardwarePrice;
-    const reference = generateRef("plan");
+    let chargeAmount;
+    let chargeHardware = hardwarePrice;
+    if (currency !== "USD" && localPrices?.[currency]) {
+      chargeAmount = localPrices[currency].monthly;
+      chargeHardware = localPrices[currency].hardware ?? 0;
+    } else {
+      chargeAmount = priceMonthly;
+    }
+    const totalAmount = chargeAmount + chargeHardware;
+    const reference = uniqueRef("plan");
     const safeEmail = encodeURIComponent(email.trim());
     const safeName = encodeURIComponent(name.trim());
     const safeAddr = encodeURIComponent(address?.trim() ?? "");
-    const { authorization_url } = await paystackInitialize({
+    const result = await paystackInit({
       email: email.trim(),
-      amount: Math.round(totalAmount * 100),
-      currency: "USD",
+      amount: toSubunit(totalAmount),
+      currency,
       reference,
-      callback_url: `${APP_URL2}/plans?paystack_success=1&plan_id=${planId}&email=${safeEmail}&name=${safeName}&address=${safeAddr}&reference=${reference}`,
+      callback_url: `${APP_URL2}/plans?paystack_success=1&reference=${reference}&plan_id=${planId}&email=${safeEmail}&name=${safeName}&address=${safeAddr}`,
       metadata: {
         planId: String(planId),
         planName,
         planSpeed,
+        planCategory,
         customerName: name.trim(),
         customerEmail: email.trim(),
         address: address?.trim() ?? "",
-        totalAmount: String(totalAmount)
+        hardwarePrice: String(chargeHardware),
+        currency
       }
     });
-    res.json({ paymentLink: authorization_url, reference });
+    if (!result.status || !result.data?.authorization_url) {
+      res.status(500).json({ error: result.message || "Failed to create payment link" });
+      return;
+    }
+    res.json({ paymentLink: result.data.authorization_url, reference });
   } catch (err) {
     req.log?.error?.({ err }, "paystack-plan-pay error");
     res.status(500).json({ error: "Failed to generate payment link" });
@@ -54296,20 +54416,22 @@ router10.post("/paystack-plan-verify", async (req, res) => {
       res.status(400).json({ error: "reference is required" });
       return;
     }
-    const tx = await paystackVerify(reference);
-    if (tx.status !== "success") {
-      res.status(400).json({ error: "Payment not completed", status: tx.status });
+    const result = await paystackVerify(reference);
+    if (!result.status || result.data?.status !== "success") {
+      res.status(400).json({ error: "Payment not completed", status: result.data?.status });
       return;
     }
-    const meta = tx.metadata ?? {};
-    const planIdNum = parseInt(plan_id ?? String(meta.planId ?? "0")) || 0;
-    const customerEmail = email ?? String(meta.customerEmail ?? tx.customer.email ?? "");
-    const customerName = name ?? String(meta.customerName ?? "");
-    const customerAddress = address ?? String(meta.address ?? "");
-    const planName = String(meta.planName ?? PLAN_PRICES[planIdNum]?.name ?? "Starlink Plan");
-    const planSpeed = String(meta.planSpeed ?? PLAN_PRICES[planIdNum]?.speed ?? "");
-    const amountPaid = tx.amount / 100;
-    const [existingSub] = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.paystackReference, reference)).limit(1);
+    const meta = result.data.metadata ?? {};
+    const planIdNum = parseInt(plan_id ?? meta.planId ?? "0") || 0;
+    const customerEmail = email ?? meta.customerEmail ?? result.data.customer?.email ?? "";
+    const customerName = name ?? meta.customerName ?? "";
+    const customerAddress = address ?? meta.address ?? "";
+    const planName = meta.planName ?? PLAN_PRICES[planIdNum]?.name ?? "Starlink Plan";
+    const planSpeed = meta.planSpeed ?? PLAN_PRICES[planIdNum]?.speed ?? "";
+    const planCategory = meta.planCategory ?? "";
+    const amountPaid = (result.data.amount ?? 0) / 100;
+    const currency = result.data.currency ?? CURRENCY;
+    const [existingSub] = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.stripeSessionId, reference)).limit(1);
     let subscriptionId = existingSub?.id ?? null;
     if (!existingSub) {
       try {
@@ -54320,18 +54442,17 @@ router10.post("/paystack-plan-verify", async (req, res) => {
           status: "active",
           address: customerAddress,
           amountPaid: String(amountPaid),
-          paystackReference: reference
+          stripeSessionId: reference
         }).returning();
         subscriptionId = sub?.id ?? null;
         if (sub) {
           const [dbPlan] = await db.select().from(plansTable).where(eq(plansTable.id, planIdNum)).limit(1);
           const planFeatures = dbPlan?.features ?? [];
-          const planCategory = dbPlan?.category ?? "";
           sendSubscriptionConfirmation({
             customerName,
             customerEmail,
             planName,
-            planCategory,
+            planCategory: planCategory || dbPlan?.category || "",
             planSpeed,
             priceMonthly: amountPaid,
             features: planFeatures,
@@ -54343,7 +54464,7 @@ router10.post("/paystack-plan-verify", async (req, res) => {
             customerEmail,
             planName,
             amountPaid,
-            currency: tx.currency?.toUpperCase() ?? "USD",
+            currency,
             transactionId: reference,
             date: (/* @__PURE__ */ new Date()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
           }).catch(() => {
@@ -54354,7 +54475,7 @@ router10.post("/paystack-plan-verify", async (req, res) => {
             customerEmail,
             item: planName,
             amountPaid,
-            currency: tx.currency?.toUpperCase() ?? "USD",
+            currency,
             transactionId: reference
           }).catch(() => {
           });
@@ -54370,7 +54491,7 @@ router10.post("/paystack-plan-verify", async (req, res) => {
         planSpeed,
         email: customerEmail,
         amountPaid,
-        currency: tx.currency?.toUpperCase() ?? "USD",
+        currency,
         reference,
         address: customerAddress,
         alreadyProcessed: !!existingSub
@@ -54381,62 +54502,122 @@ router10.post("/paystack-plan-verify", async (req, res) => {
     res.status(500).json({ error: "Verification failed" });
   }
 });
-router10.post("/paystack-webhook", import_express11.default.json(), async (req, res) => {
+router10.post("/paystack-webhook", async (req, res) => {
   res.sendStatus(200);
   try {
-    const webhookSecret = process.env["PAYSTACK_WEBHOOK_SECRET"];
-    if (webhookSecret) {
-      const hash = crypto2.createHmac("sha512", webhookSecret).update(JSON.stringify(req.body)).digest("hex");
-      if (hash !== req.headers["x-paystack-signature"]) {
-        req.log?.warn("Paystack webhook signature verification failed");
-        return;
-      }
+    const crypto2 = await import("node:crypto");
+    const secret = PSK();
+    const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
+    const rawBodyStr = rawBody.toString("utf8");
+    const hash = crypto2.createHmac("sha512", secret).update(rawBodyStr).digest("hex");
+    const incomingSig = req.headers["x-paystack-signature"];
+    if (!incomingSig || hash !== incomingSig) {
+      req.log?.warn({ incomingSig: incomingSig?.slice(0, 12) }, "Paystack webhook: signature mismatch \u2014 ignored");
+      return;
     }
-    const event = req.body;
+    let event;
+    try {
+      event = JSON.parse(rawBodyStr);
+    } catch {
+      req.log?.warn("Paystack webhook: failed to parse JSON body");
+      return;
+    }
+    req.log?.info({ event: event.event }, "Paystack webhook received");
     if (event.event !== "charge.success") return;
     const data = event.data;
     if (data.status !== "success") return;
-    const reference = data.reference;
     const meta = data.metadata ?? {};
+    const reference = data.reference;
+    const eventCurrency = data.currency ?? DEFAULT_CURRENCY;
     if (meta.type === "token_bundle") {
-      const email = String(meta.customerEmail ?? data.customer?.email ?? "");
-      const tokens = parseInt(String(meta.tokens ?? "0")) || 0;
-      const bundleName = String(meta.bundleName ?? "Bundle");
-      if (email && tokens > 0) {
-        try {
-          const [existing] = await db.select().from(walletTransactionsTable).where(eq(walletTransactionsTable.reference, reference)).limit(1);
-          if (!existing) await creditTokens(email, tokens, bundleName, reference);
-        } catch (err) {
-          req.log?.error?.({ err }, "Paystack webhook: token credit failed");
-        }
+      const email = meta.customerEmail ?? data.customer?.email ?? "";
+      const tokens = parseInt(meta.tokens ?? "0") || 0;
+      const bundleName = meta.bundleName ?? "Bundle";
+      if (!email || tokens <= 0) return;
+      const [existing] = await db.select().from(walletTransactionsTable).where(eq(walletTransactionsTable.reference, reference)).limit(1);
+      if (!existing) {
+        await creditTokensViaPaystack(email, tokens, bundleName, reference).catch((err) => {
+          req.log?.error({ err, reference }, "Webhook: failed to credit tokens");
+        });
+        req.log?.info({ email, tokens, bundleName, reference }, "Webhook: tokens credited");
+      } else {
+        req.log?.info({ reference }, "Webhook: token bundle already processed \u2014 skipped");
       }
       return;
     }
-    const planIdNum = parseInt(String(meta.planId ?? "0")) || 0;
-    const customerEmail = String(meta.customerEmail ?? data.customer?.email ?? "");
-    const customerName = String(meta.customerName ?? "");
-    const amountPaid = data.amount / 100;
-    try {
-      await db.insert(subscriptionsTable).values({
-        email: customerEmail,
-        name: customerName,
-        planId: planIdNum,
-        status: "active",
-        address: String(meta.address ?? ""),
-        amountPaid: String(amountPaid),
-        paystackReference: reference
-      });
-    } catch {
+    const planIdNum = parseInt(meta.planId ?? "0") || 0;
+    const customerEmail = meta.customerEmail ?? data.customer?.email ?? "";
+    const customerName = meta.customerName ?? "";
+    const customerAddress = meta.address ?? "";
+    const planName = meta.planName ?? PLAN_PRICES[planIdNum]?.name ?? "Starlink Plan";
+    const planSpeed = meta.planSpeed ?? PLAN_PRICES[planIdNum]?.speed ?? "";
+    const planCategory = meta.planCategory ?? "";
+    const amountPaid = (data.amount ?? 0) / 100;
+    if (!planIdNum || !customerEmail) {
+      req.log?.warn({ reference, planIdNum, customerEmail }, "Webhook: missing planId or email \u2014 skipped");
+      return;
     }
+    const [existingSub] = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.stripeSessionId, reference)).limit(1);
+    if (existingSub) {
+      req.log?.info({ reference, subscriptionId: existingSub.id }, "Webhook: subscription already exists \u2014 skipped");
+      return;
+    }
+    const [sub] = await db.insert(subscriptionsTable).values({
+      email: customerEmail,
+      name: customerName,
+      planId: planIdNum,
+      status: "active",
+      address: customerAddress,
+      amountPaid: String(amountPaid),
+      stripeSessionId: reference
+    }).returning();
+    req.log?.info(
+      { reference, subscriptionId: sub?.id, planId: planIdNum, email: customerEmail },
+      "Webhook: subscription activated"
+    );
+    if (!sub) return;
+    const [dbPlan] = await db.select().from(plansTable).where(eq(plansTable.id, planIdNum)).limit(1).catch(() => [null]);
+    const planFeatures = dbPlan?.features ?? [];
+    sendSubscriptionConfirmation({
+      customerName,
+      customerEmail,
+      planName,
+      planCategory: planCategory || dbPlan?.category || "",
+      planSpeed,
+      priceMonthly: amountPaid,
+      features: planFeatures,
+      subscriptionId: sub.id
+    }).catch(() => {
+    });
+    sendPaymentReceipt({
+      customerName,
+      customerEmail,
+      planName,
+      amountPaid,
+      currency: eventCurrency,
+      transactionId: reference,
+      date: (/* @__PURE__ */ new Date()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    }).catch(() => {
+    });
+    sendAdminPaymentAlert({
+      type: "plan",
+      customerName,
+      customerEmail,
+      item: planName,
+      amountPaid,
+      currency: eventCurrency,
+      transactionId: reference
+    }).catch(() => {
+    });
   } catch (err) {
-    req.log?.error?.({ err }, "Paystack webhook processing error");
+    req.log?.error({ err }, "Paystack webhook: unhandled error");
   }
 });
 var paystack_default = router10;
 
 // src/routes/token-activation.ts
-var import_express12 = __toESM(require_express2(), 1);
-var router11 = (0, import_express12.Router)();
+var import_express11 = __toESM(require_express2(), 1);
+var router11 = (0, import_express11.Router)();
 router11.post("/activate-with-tokens", requireAuth, async (req, res) => {
   try {
     const { planId, address } = req.body;
@@ -54509,8 +54690,8 @@ router11.post("/activate-with-tokens", requireAuth, async (req, res) => {
 var token_activation_default = router11;
 
 // src/routes/support.ts
-var import_express13 = __toESM(require_express2(), 1);
-var router12 = (0, import_express13.Router)();
+var import_express12 = __toESM(require_express2(), 1);
+var router12 = (0, import_express12.Router)();
 function generateTicketRef() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let ref = "ORB-";
@@ -54659,8 +54840,8 @@ router12.delete("/admin/support/tickets/:id", adminAuth, async (req, res) => {
 var support_default = router12;
 
 // src/routes/track.ts
-var import_express14 = __toESM(require_express2(), 1);
-var router13 = (0, import_express14.Router)();
+var import_express13 = __toESM(require_express2(), 1);
+var router13 = (0, import_express13.Router)();
 function statusMeta(status) {
   const map = {
     active: { label: "Active", step: 4 },
@@ -54791,7 +54972,7 @@ router13.get("/track", async (req, res) => {
 var track_default = router13;
 
 // src/routes/index.ts
-var router14 = (0, import_express15.Router)();
+var router14 = (0, import_express14.Router)();
 router14.use(auth_default);
 router14.use(health_default);
 router14.use(plans_default);
@@ -54808,7 +54989,7 @@ router14.use(track_default);
 var routes_default = router14;
 
 // src/app.ts
-var app = (0, import_express16.default)();
+var app = (0, import_express15.default)();
 var ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean);
 var isDev = process.env.NODE_ENV !== "production";
 app.set("trust proxy", 1);
@@ -54860,13 +55041,13 @@ app.use((req, _res, next) => {
   }
   next();
 });
-app.use(import_express16.default.json({ limit: "2mb" }));
-app.use(import_express16.default.urlencoded({ extended: true, limit: "2mb" }));
+app.use(import_express15.default.json({ limit: "2mb" }));
+app.use(import_express15.default.urlencoded({ extended: true, limit: "2mb" }));
 app.use("/api", routes_default);
 if (process.env.NODE_ENV === "production") {
   const __dirname2 = path.dirname(fileURLToPath(import.meta.url));
   const frontendDist = path.resolve(__dirname2, "../../spacex-starlink/dist");
-  app.use(import_express16.default.static(frontendDist));
+  app.use(import_express15.default.static(frontendDist));
   app.get("/{*path}", (_req, res) => {
     res.sendFile(path.join(frontendDist, "index.html"));
   });

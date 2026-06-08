@@ -1,17 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Satellite, Zap, Globe, Shield, Lock, HeadphonesIcon, CheckCircle2, Star, ChevronDown, ChevronUp, ArrowRight, Package, Wifi, Award, Clock, Users } from "lucide-react";
+import { Satellite, Zap, Globe, Shield, Lock, HeadphonesIcon, CheckCircle2, Star, ChevronDown, ChevronUp, ArrowRight, Package, Award, Clock } from "lucide-react";
+
+const LIVE_FEED = [
+  { name: "Chukwuemeka O.", location: "Lagos, Nigeria", plan: "Starlink Standard", action: "just ordered" },
+  { name: "Sarah K.", location: "Rural Montana, USA", plan: "Starlink Standard Plus", action: "just connected" },
+  { name: "Babatunde F.", location: "Port Harcourt, Nigeria", plan: "Starlink Business", action: "just ordered" },
+  { name: "James T.", location: "Auckland, New Zealand", plan: "Starlink Roam", action: "just activated" },
+  { name: "Ngozi A.", location: "Abuja, Nigeria", plan: "Starlink Standard", action: "just ordered" },
+  { name: "Felix W.", location: "Vancouver, Canada", plan: "Starlink Roam", action: "just connected" },
+  { name: "Emeka K.", location: "Enugu, Nigeria", plan: "Starlink Standard Plus", action: "just ordered" },
+  { name: "Hans B.", location: "Bavaria, Germany", plan: "Starlink Standard Plus", action: "just activated" },
+  { name: "Adaeze N.", location: "Owerri, Nigeria", plan: "Starlink Business", action: "just ordered" },
+  { name: "Captain J. Moore", location: "North Atlantic", plan: "Starlink Maritime", action: "just connected" },
+  { name: "Tunde M.", location: "Ibadan, Nigeria", plan: "Starlink Standard", action: "just ordered" },
+  { name: "Sophie D.", location: "Brittany, France", plan: "Starlink Roam", action: "just activated" },
+  { name: "Chioma I.", location: "Lagos, Nigeria", plan: "Starlink Standard Plus", action: "just ordered" },
+  { name: "Dr. Claire M.", location: "Ontario, Canada", plan: "Starlink Standard", action: "just connected" },
+  { name: "Segun A.", location: "Kano, Nigeria", plan: "Starlink Business", action: "just ordered" },
+  { name: "Emma & Tom L.", location: "Yorkshire, UK", plan: "Starlink Standard", action: "just activated" },
+  { name: "Funmi B.", location: "Abuja, Nigeria", plan: "Starlink Standard", action: "just ordered" },
+  { name: "Michael R.", location: "Austin, Texas", plan: "Starlink Business", action: "just connected" },
+  { name: "Obinna C.", location: "Port Harcourt, Nigeria", plan: "Starlink Standard Plus", action: "just ordered" },
+  { name: "Maria L.", location: "São Paulo, Brazil", plan: "Starlink Standard", action: "just activated" },
+];
+
+const TICKER_TIMES = [2, 3, 4, 5, 6, 7, 8, 1, 3, 5, 2, 6, 4, 7, 3, 5, 2, 8, 4, 6];
+
+function LiveActivityTicker() {
+  const [current, setCurrent] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setCurrent((prev) => (prev + 1) % LIVE_FEED.length);
+        setVisible(true);
+      }, 400);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const item = LIVE_FEED[current];
+  const mins = TICKER_TIMES[current];
+
+  return (
+    <div className="bg-black border-b border-primary/15 py-2.5 overflow-hidden">
+      <div className="container mx-auto px-4 flex items-center justify-center gap-3">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary">Live</span>
+        </div>
+        <div
+          className="text-[11px] text-gray-300 font-medium transition-all duration-300"
+          style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(-6px)" }}
+        >
+          <span className="text-white font-bold">{item.name}</span>
+          {" "}from{" "}
+          <span className="text-gray-400">{item.location}</span>
+          {" "}{item.action}{" "}
+          <span className="text-primary font-bold">{item.plan}</span>
+        </div>
+        <div className="shrink-0 text-[9px] font-bold uppercase tracking-widest text-gray-600 border border-white/10 rounded-full px-2 py-0.5">
+          {mins}m ago
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const TESTIMONIALS = [
   {
-    name: "Michael R.",
-    location: "Austin, Texas, USA",
+    name: "Chukwuemeka O.",
+    location: "Lagos, Nigeria",
     plan: "Starlink Business",
     rating: 5,
-    text: "We run a tech consultancy with 40 staff spread across Texas. Since switching to ORBITFUTURE, our video calls never drop and we close deals faster. The ROI has been incredible.",
-    avatar: "MR",
+    text: "Running a logistics company across Lagos, we needed reliable internet across all our offices. ORBITFUTURE delivered instantly. Our operations team can now coordinate in real time, even in areas with poor GSM coverage.",
+    avatar: "CO",
   },
   {
     name: "Sarah K.",
@@ -22,12 +90,28 @@ const TESTIMONIALS = [
     avatar: "SK",
   },
   {
+    name: "Adaeze N.",
+    location: "Abuja, Nigeria",
+    plan: "Starlink Standard",
+    rating: 5,
+    text: "As a remote worker serving international clients, I needed internet that matched big-city speeds. ORBITFUTURE gives me 200Mbps+ even here in Abuja. Client calls are crystal clear. I'm never dropping a deadline again.",
+    avatar: "AN",
+  },
+  {
     name: "Captain James T.",
     location: "North Atlantic",
     plan: "Starlink Maritime",
     rating: 5,
     text: "We operate a vessel on long transatlantic routes. ORBITFUTURE keeps our crew connected for welfare and our operations team connected for safety communications. Exceptional.",
     avatar: "JT",
+  },
+  {
+    name: "Babatunde F.",
+    location: "Port Harcourt, Nigeria",
+    plan: "Starlink Standard Plus",
+    rating: 5,
+    text: "I run a media production studio and we upload huge video files daily. Before ORBITFUTURE, we'd lose hours waiting on uploads. Now 4K footage goes up in minutes. The dish paid for itself in the first week.",
+    avatar: "BF",
   },
   {
     name: "Dr. Claire M.",
@@ -38,20 +122,12 @@ const TESTIMONIALS = [
     avatar: "CM",
   },
   {
-    name: "Felix W.",
-    location: "Vancouver, Canada",
-    plan: "Starlink Roam",
+    name: "Ngozi A.",
+    location: "Enugu, Nigeria",
+    plan: "Starlink Business",
     rating: 5,
-    text: "I'm a travel content creator driving across North America. ORBITFUTURE Roam goes everywhere I do. I've uploaded 4K footage from the middle of the Rockies. Nothing else comes close.",
-    avatar: "FW",
-  },
-  {
-    name: "Emma & Tom L.",
-    location: "Rural Yorkshire, UK",
-    plan: "Starlink Standard",
-    rating: 5,
-    text: "We tried every rural ISP for years. ORBITFUTURE is the first that actually delivers what's promised. 200Mbps consistently. Our kids can finally game and study online.",
-    avatar: "ET",
+    text: "We run an EdTech platform for students across southeastern Nigeria. ORBITFUTURE made it possible to stream live classes with zero buffering. Our student retention rate shot up 40% since we switched.",
+    avatar: "NA",
   },
   {
     name: "Hans & Greta B.",
@@ -60,6 +136,30 @@ const TESTIMONIALS = [
     rating: 5,
     text: "Living in the Alps meant poor connectivity for years. ORBITFUTURE changed everything — fast, reliable internet even in deep winter. We can now work from home full-time.",
     avatar: "HB",
+  },
+  {
+    name: "Emeka K.",
+    location: "Kano, Nigeria",
+    plan: "Starlink Standard",
+    rating: 5,
+    text: "I've tried every internet provider in Kano — none came close. ORBITFUTURE is in a different league. Consistent 150Mbps, no power outage disruptions, and setup was genuinely 20 minutes. Best investment I've made this year.",
+    avatar: "EK",
+  },
+  {
+    name: "Felix W.",
+    location: "Vancouver, Canada",
+    plan: "Starlink Roam",
+    rating: 5,
+    text: "I'm a travel content creator driving across North America. ORBITFUTURE Roam goes everywhere I do. I've uploaded 4K footage from the middle of the Rockies. Nothing else comes close.",
+    avatar: "FW",
+  },
+  {
+    name: "Chioma I.",
+    location: "Lagos, Nigeria",
+    plan: "Starlink Standard Plus",
+    rating: 5,
+    text: "Finally — internet that actually matches the price I pay. I host virtual fitness classes for over 300 subscribers globally. ORBITFUTURE means my streams never freeze, even during peak hours. My clients are happier than ever.",
+    avatar: "CI",
   },
   {
     name: "Sophie D.",
@@ -90,11 +190,11 @@ const HOME_FAQS = [
   },
   {
     q: "What payment methods do you accept?",
-    a: "Visa, Mastercard, Amex, Bank Transfer, USSD, and Mobile Money via Paystack. Also Orbit Wallet tokens. No crypto.",
+    a: "Visa, Mastercard, Verve via Paystack. Also Orbit Wallet tokens (pre-loaded via Paystack). No crypto.",
   },
   {
     q: "Is my payment secure?",
-    a: "Yes. All payments are processed by Paystack, a PCI-DSS certified payment processor. Your card details are never stored on our servers.",
+    a: "Yes. All payments are processed by Paystack, a PCI-DSS compliant processor. Your card details are never stored on our servers.",
   },
 ];
 
@@ -129,55 +229,37 @@ function SatelliteGlobe() {
           <path id="orbit-polar" d="M 150,15 a 36,135 0 1,1 0,270 a 36,135 0 1,1 0,-270" />
           <path id="orbit-diagonal" d="M 245,55 a 135,36 0 1,1 -190,190" />
         </defs>
-
-        {/* Globe body */}
         <circle cx="150" cy="150" r="132" fill="url(#globe-surface)" stroke="rgba(0,212,255,0.4)" strokeWidth="1.5" />
-
-        {/* Latitude grid lines */}
         <ellipse cx="150" cy="150" rx="132" ry="36" fill="none" stroke="rgba(0,212,255,0.1)" strokeWidth="0.8" />
         <ellipse cx="150" cy="112" rx="114" ry="28" fill="none" stroke="rgba(0,212,255,0.07)" strokeWidth="0.7" />
         <ellipse cx="150" cy="188" rx="114" ry="28" fill="none" stroke="rgba(0,212,255,0.07)" strokeWidth="0.7" />
         <ellipse cx="150" cy="78"  rx="76"  ry="18" fill="none" stroke="rgba(0,212,255,0.05)" strokeWidth="0.6" />
         <ellipse cx="150" cy="222" rx="76"  ry="18" fill="none" stroke="rgba(0,212,255,0.05)" strokeWidth="0.6" />
-
-        {/* Longitude grid lines */}
         <ellipse cx="150" cy="150" rx="36" ry="132" fill="none" stroke="rgba(0,212,255,0.1)" strokeWidth="0.8" />
         <ellipse cx="150" cy="150" rx="36" ry="132" fill="none" stroke="rgba(0,212,255,0.07)" strokeWidth="0.7" transform="rotate(60 150 150)" />
         <ellipse cx="150" cy="150" rx="36" ry="132" fill="none" stroke="rgba(0,212,255,0.07)" strokeWidth="0.7" transform="rotate(120 150 150)" />
-
-        {/* Orbit rings (dashed, tilted) */}
         <ellipse cx="150" cy="150" rx="143" ry="38" fill="none" stroke="rgba(0,212,255,0.55)" strokeWidth="1.3" strokeDasharray="7,4" />
         <ellipse cx="150" cy="150" rx="143" ry="38" fill="none" stroke="rgba(0,212,255,0.4)" strokeWidth="1.1" strokeDasharray="7,4" transform="rotate(55 150 150)" />
         <ellipse cx="150" cy="150" rx="143" ry="38" fill="none" stroke="rgba(0,212,255,0.35)" strokeWidth="1" strokeDasharray="7,4" transform="rotate(-55 150 150)" />
-
-        {/* Animated satellites */}
         <circle r="5.5" fill="#00d4ff" filter="url(#sat-glow)">
           <animateMotion dur="8s" repeatCount="indefinite" calcMode="linear">
             <mpath href="#orbit-equator" />
           </animateMotion>
         </circle>
-
         <circle r="4" fill="#00d4ff" filter="url(#sat-glow)">
           <animateMotion dur="11s" repeatCount="indefinite" begin="-5s" calcMode="linear">
             <mpath href="#orbit-polar" />
           </animateMotion>
         </circle>
-
         <circle r="4" fill="#4dffc8" filter="url(#sat-glow)">
           <animateMotion dur="9.5s" repeatCount="indefinite" begin="-2s" calcMode="linear">
             <mpath href="#orbit-diagonal" />
           </animateMotion>
         </circle>
-
-        {/* Pole dots */}
         <circle cx="150" cy="18" r="3" fill="rgba(0,212,255,0.5)" />
         <circle cx="150" cy="282" r="3" fill="rgba(0,212,255,0.5)" />
-
-        {/* Rim highlight */}
         <circle cx="150" cy="150" r="132" fill="none" stroke="rgba(0,212,255,0.15)" strokeWidth="8" opacity="0.4" />
       </svg>
-
-      {/* Live indicator */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 border border-primary/30 rounded-full px-3 py-1">
         <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
         <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Live Coverage</span>
@@ -191,6 +273,9 @@ export default function Home() {
 
   return (
     <MainLayout>
+      {/* ── LIVE ACTIVITY TICKER ── */}
+      <LiveActivityTicker />
+
       {/* ── HERO ── */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-black">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,212,255,0.08)_0%,transparent_70%)]" />
@@ -220,8 +305,6 @@ export default function Home() {
               </Button>
             </Link>
           </div>
-
-          {/* Trust indicators */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
             {[
               { icon: Shield, label: "Secure Payments" },
@@ -428,8 +511,6 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-
-            {/* Animated satellite globe */}
             <div className="flex-1 flex items-center justify-center">
               <SatelliteGlobe />
             </div>

@@ -8,6 +8,7 @@ import {
   CheckCircle2, Zap, ArrowRight, Package, CreditCard, Wifi,
   Globe, Shield, HeadphonesIcon, CheckCheck, Minus
 } from "lucide-react";
+import { useCurrency } from "@/hooks/useCurrency";
 
 type Plan = {
   id: number;
@@ -16,8 +17,8 @@ type Plan = {
   speed: string;
   priceMonthly: number;
   hardwarePrice?: number;
+  localPrices?: Record<string, { monthly: number; hardware?: number }>;
   features: string[];
-  paystackPaymentLink?: string | null;
   popular: boolean;
   active: boolean;
   description: string;
@@ -27,8 +28,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   all: "All Plans",
   residential: "Residential",
   roam: "Roam & Mobile",
-  business: "Business",
   maritime: "Maritime",
+  business: "Business",
   aviation: "Aviation",
 };
 
@@ -92,11 +93,13 @@ function ComparisonCell({ value, highlight }: { value: string | boolean; highlig
 }
 
 export default function Plans() {
+  const { formatPrice, formatMonthly, currency } = useCurrency();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [payingPlanId, setPayingPlanId] = useState<number | null>(null);
   const [showComparison, setShowComparison] = useState(false);
+  const [toastMsg, setToastMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [, navigate] = useLocation();
 
   useEffect(() => {
@@ -106,15 +109,75 @@ export default function Plans() {
       .catch(() => setLoading(false));
   }, []);
 
+  // Handle Paystack redirect back after plan payment
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paystackSuccess = params.get("paystack_success");
+    const reference = params.get("reference");
+    const planId = params.get("plan_id");
+    const email = params.get("email");
+    const name = params.get("name");
+    const address = params.get("address");
+
+    if (!paystackSuccess || !reference) return;
+    window.history.replaceState({}, "", "/plans");
+
+    fetch(`${getApiBase()}/api/paystack-plan-verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reference, plan_id: planId, email, name, address }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setToastMsg({ type: "success", text: `Subscription activated! Welcome to ${data.subscription?.planName ?? "Starlink"}.` });
+          setTimeout(() => navigate("/dashboard"), 3000);
+        } else {
+          setToastMsg({ type: "error", text: data.error || "Payment verification failed. Contact support." });
+        }
+      })
+      .catch(() => setToastMsg({ type: "error", text: "Could not verify payment. Contact support." }));
+  }, [navigate]);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toastMsg) return;
+    const t = setTimeout(() => setToastMsg(null), 6000);
+    return () => clearTimeout(t);
+  }, [toastMsg]);
+
   const allCategories = ["all", ...Array.from(new Set(plans.map((p) => p.category)))];
   const filtered = activeCategory === "all" ? plans : plans.filter((p) => p.category === activeCategory);
 
   const handleGetStarted = async (plan: Plan) => {
-    if (plan.paystackPaymentLink) {
-      window.location.href = plan.paystackPaymentLink;
-      return;
-    }
     navigate(`/checkout?planId=${plan.id}`);
+  };
+
+  const handlePaystackPay = async (plan: Plan) => {
+    setPayingPlanId(plan.id);
+    try {
+      const name = localStorage.getItem("orbit_name") || "";
+      const email = localStorage.getItem("orbit_email") || "";
+      if (!name || !email) {
+        navigate(`/checkout?planId=${plan.id}`);
+        setPayingPlanId(null);
+        return;
+      }
+      const res = await fetch(`${getApiBase()}/api/paystack-plan-pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: plan.id, email, name }),
+      });
+      const data = await res.json();
+      if (data.paymentLink) {
+        window.location.href = data.paymentLink;
+      } else {
+        navigate(`/checkout?planId=${plan.id}`);
+      }
+    } catch {
+      navigate(`/checkout?planId=${plan.id}`);
+    }
+    setPayingPlanId(null);
   };
 
   const totalCost = (plan: Plan) => {
@@ -124,6 +187,15 @@ export default function Plans() {
 
   return (
     <MainLayout>
+      {toastMsg && (
+        <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-2xl text-sm font-bold border transition-all ${
+          toastMsg.type === "success"
+            ? "bg-emerald-950 border-emerald-500/40 text-emerald-300"
+            : "bg-red-950 border-red-500/40 text-red-300"
+        }`}>
+          {toastMsg.text}
+        </div>
+      )}
       <div className="container mx-auto px-4 py-16 max-w-7xl">
 
         {/* Page header */}
@@ -132,6 +204,16 @@ export default function Plans() {
             <Wifi className="w-3.5 h-3.5" />
             Global Coverage · 100+ Countries
           </div>
+          {currency !== "USD" && (
+            <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1.5 mb-4 text-[11px] font-bold uppercase tracking-widest text-emerald-400">
+              <Globe className="w-3 h-3" />
+              {currency === "NGN" ? "₦ Prices shown in Nigerian Naira · Pay via Paystack" :
+               currency === "GHS" ? "GH₵ Prices shown in Ghanaian Cedis · Pay via Paystack" :
+               currency === "ZAR" ? "R Prices shown in South African Rand · Pay via Paystack" :
+               currency === "KES" ? "KSh Prices shown in Kenyan Shillings · Pay via Paystack" :
+               `Prices shown in your local currency`}
+            </div>
+          )}
           <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-white mb-4">
             Starlink Plans
           </h1>
@@ -168,6 +250,10 @@ export default function Plans() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((plan) => {
               const cost = totalCost(plan);
+              const lp = plan.localPrices;
+              const localMonthly = lp?.[currency]?.monthly;
+              const localHardware = lp?.[currency]?.hardware ?? 0;
+              const localFirst = localMonthly != null ? localMonthly + localHardware : undefined;
               return (
                 <div
                   key={plan.id}
@@ -196,17 +282,17 @@ export default function Plans() {
                         <Wifi className="w-3.5 h-3.5 text-primary" />
                         <span className="text-xs text-gray-400 uppercase tracking-wider font-bold">Monthly</span>
                       </div>
-                      <span className="font-black text-white text-lg">${cost.monthly}<span className="text-gray-500 text-xs font-normal">/mo</span></span>
+                      <span className="font-black text-white text-lg">{formatPrice(cost.monthly, lp, "monthly")}<span className="text-gray-500 text-xs font-normal">/mo</span></span>
                     </div>
 
-                    {cost.hardware > 0 && (
+                    {(cost.hardware > 0 || localHardware > 0) && (
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Package className="w-3.5 h-3.5 text-amber-400" />
                           <span className="text-xs text-gray-400 uppercase tracking-wider font-bold">Hardware</span>
                           <span className="text-[9px] text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-full px-1.5 py-0.5 uppercase font-bold">Once</span>
                         </div>
-                        <span className="font-bold text-amber-400">${cost.hardware}</span>
+                        <span className="font-bold text-amber-400">{formatPrice(cost.hardware, lp, "hardware")}</span>
                       </div>
                     )}
 
@@ -214,15 +300,19 @@ export default function Plans() {
                       <div className="flex items-center gap-2">
                         <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
                         <span className="text-xs text-emerald-400 uppercase tracking-wider font-bold">
-                          {cost.hardware > 0 ? "First Payment" : "Monthly"}
+                          {(cost.hardware > 0 || localHardware > 0) ? "First Payment" : "Monthly"}
                         </span>
                       </div>
-                      <span className="font-black text-emerald-400 text-xl">${cost.firstMonth}</span>
+                      <span className="font-black text-emerald-400 text-xl">
+                        {localFirst != null
+                          ? `${currency === "NGN" ? "₦" : ""}${Math.round(localFirst).toLocaleString()}`
+                          : formatPrice(cost.firstMonth)}
+                      </span>
                     </div>
 
                     <p className="text-[10px] text-gray-600 leading-relaxed">
-                      {cost.hardware > 0
-                        ? `Then $${cost.monthly}/mo. Hardware charged once on first payment.`
+                      {(cost.hardware > 0 || localHardware > 0)
+                        ? `Then ${formatMonthly(cost.monthly, lp)}. Hardware charged once on first payment.`
                         : `Billed monthly. Cancel anytime.`}
                     </p>
                   </div>
@@ -258,7 +348,9 @@ export default function Plans() {
                       ) : (
                         <span className="flex items-center gap-2">
                           <Zap className="w-4 h-4" />
-                          Get Started — ${cost.firstMonth}
+                          Get Started — {localFirst != null
+                            ? `${currency === "NGN" ? "₦" : ""}${Math.round(localFirst).toLocaleString()}`
+                            : formatPrice(cost.firstMonth)}
                           <ArrowRight className="w-4 h-4" />
                         </span>
                       )}
