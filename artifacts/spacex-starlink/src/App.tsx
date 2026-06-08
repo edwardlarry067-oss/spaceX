@@ -22,6 +22,7 @@ const About = lazy(() => import("@/pages/about"));
 const FAQ = lazy(() => import("@/pages/faq"));
 const Coverage = lazy(() => import("@/pages/coverage"));
 const Support = lazy(() => import("@/pages/support"));
+const Track = lazy(() => import("@/pages/track"));
 
 // Admin pages — lazy loaded
 const AdminLogin = lazy(() => import("@/pages/admin/login"));
@@ -68,6 +69,7 @@ function Router() {
         <Route path="/faq" component={FAQ} />
         <Route path="/coverage" component={Coverage} />
         <Route path="/support" component={Support} />
+        <Route path="/track" component={Track} />
 
         <Route path="/admin" component={AdminLogin} />
         <Route path="/admin/dashboard" component={AdminDashboard} />

@@ -11,6 +11,7 @@ import whatsappWebhookRouter from "./whatsapp-webhook";
 import paystackRouter from "./paystack";
 import tokenActivationRouter from "./token-activation";
 import supportRouter from "./support";
+import trackRouter from "./track";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(whatsappWebhookRouter);
 router.use(paystackRouter);
 router.use(tokenActivationRouter);
 router.use(supportRouter);
+router.use(trackRouter);
 
 export default router;
