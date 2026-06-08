@@ -39,7 +39,63 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Deploy to Vercel (Production)
-        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        id: deploy
+        run: |
+          DEPLOY_URL=$(vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOY_URL"
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Clean up old deployments
+        if: success()
+        run: |
+          node << 'EOF'
+          const TOKEN = process.env.VERCEL_TOKEN;
+          const TEAM_ID = process.env.VERCEL_ORG_ID;
+          const PROJECT_ID = process.env.VERCEL_PROJECT_ID;
+
+          async function api(method, path) {
+            const res = await fetch(`https://api.vercel.com${path}`, {
+              method,
+              headers: { Authorization: `Bearer ${TOKEN}` },
+            });
+            if (res.status === 204) return {};
+            const text = await res.text();
+            try { return JSON.parse(text); } catch { return {}; }
+          }
+
+          // Get all deployments
+          let all = [];
+          let until;
+          while (true) {
+            const url = `/v6/deployments?projectId=${PROJECT_ID}&teamId=${TEAM_ID}&limit=100${until ? `&until=${until}` : ""}`;
+            const data = await api("GET", url);
+            const deps = data.deployments || [];
+            if (!deps.length) break;
+            all.push(...deps);
+            if (!data.pagination?.next) break;
+            until = data.pagination.next;
+          }
+
+          // Keep only the most recent READY production deployment (the one just deployed)
+          const ready = all.filter(d => d.state === "READY" && d.target === "production");
+          const toKeep = ready[0]?.uid;
+          const toDelete = all.filter(d => d.uid !== toKeep);
+
+          console.log(`Total deployments: ${all.length}`);
+          console.log(`Keeping: ${toKeep || "none"}`);
+          console.log(`Deleting: ${toDelete.length}`);
+
+          let deleted = 0;
+          for (const dep of toDelete) {
+            const r = await api("DELETE", `/v13/deployments/${dep.uid}?teamId=${TEAM_ID}`);
+            if (!r.error) deleted++;
+          }
+          console.log(`Cleanup complete — deleted ${deleted} old deployments.`);
+          EOF
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
