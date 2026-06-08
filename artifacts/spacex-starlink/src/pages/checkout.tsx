@@ -117,6 +117,20 @@ export default function Checkout() {
   const priceTokens = Math.ceil(firstMonthTotal);
   const hasSufficientTokens = walletBalance !== null && walletBalance >= priceTokens;
 
+  // Local currency pricing
+  const localPrices = (plan as any)?.localPrices as Record<string, { monthly: number; hardware?: number }> | undefined;
+  const localPlanData = localPrices?.[currency];
+  const localMonthly = localPlanData?.monthly;
+  const localHardware = localPlanData?.hardware ?? 0;
+  const localFirstTotal = localMonthly != null ? localMonthly + localHardware : null;
+  const isLocalCurrency = localFirstTotal != null && currency !== "USD";
+  const PAYSTACK_NATIVE = new Set(["NGN", "GHS", "ZAR", "KES"]);
+  const paymentNote = isLocalCurrency
+    ? PAYSTACK_NATIVE.has(currency)
+      ? `Paystack charges in ${currency} — no conversion fees`
+      : `Shown in ${currency} for reference · Paystack charges in USD`
+    : null;
+
   const onSubmit = async (data: z.infer<typeof checkoutSchema>) => {
     if (!plan) return;
     setError("");
@@ -454,7 +468,7 @@ export default function Checkout() {
                           <Wifi className="w-3.5 h-3.5 text-primary" />
                           <span className="text-gray-400">Monthly service</span>
                         </div>
-                        <span className="font-bold text-white">{formatMonthly(priceMonthly)}</span>
+                        <span className="font-bold text-white">{formatMonthly(priceMonthly, localPrices)}</span>
                       </div>
 
                       {hardwarePrice > 0 && (
@@ -464,7 +478,7 @@ export default function Checkout() {
                             <span className="text-gray-400">Hardware kit</span>
                             <span className="text-[9px] text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-full px-1.5 py-0.5 uppercase font-bold">One-time</span>
                           </div>
-                          <span className="font-bold text-amber-400">{formatPrice(hardwarePrice)}</span>
+                          <span className="font-bold text-amber-400">{formatPrice(hardwarePrice, localPrices, "hardware")}</span>
                         </div>
                       )}
 
@@ -477,12 +491,16 @@ export default function Checkout() {
                         <span className="text-sm font-bold uppercase tracking-wider text-white">
                           {hardwarePrice > 0 ? "First Month Total" : "Monthly Total"}
                         </span>
-                        <span className="text-2xl font-black text-white">{formatPrice(firstMonthTotal)}</span>
+                        <span className="text-2xl font-black text-white">
+                          {localFirstTotal != null
+                            ? formatPrice(localFirstTotal, currency)
+                            : formatPrice(firstMonthTotal)}
+                        </span>
                       </div>
 
                       {hardwarePrice > 0 && (
                         <p className="text-[10px] text-gray-600">
-                          Then {formatMonthly(priceMonthly)} from month 2 onwards. Hardware is a one-time fee.
+                          Then {formatMonthly(priceMonthly, localPrices)} from month 2 onwards. Hardware is a one-time fee.
                         </p>
                       )}
                     </div>
@@ -538,6 +556,14 @@ export default function Checkout() {
                     </span>
                   )}
                 </Button>
+
+                {/* Local currency payment note */}
+                {paymentNote && (
+                  <div className="w-full mt-3 flex items-center justify-center gap-2 bg-emerald-500/5 border border-emerald-500/20 rounded-xl px-4 py-2.5">
+                    <span className="text-emerald-400 text-sm">✦</span>
+                    <p className="text-[11px] text-emerald-400 font-bold">{paymentNote}</p>
+                  </div>
+                )}
 
                 <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
                   {["Secure", "No hidden fees", "Cancel anytime"].map(t => (
