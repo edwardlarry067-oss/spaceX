@@ -149,7 +149,7 @@ for (const commitSha of commitsToPush) {
 // ── Update branch reference ────────────────────────────────────────────────────
 await api('PATCH', `/repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}`, {
   sha: currentRemoteSha,
-  force: false,
+  force: true,
 });
 
 console.log(`\n✅ Sync complete! GitHub main → ${currentRemoteSha.slice(0, 8)}`);

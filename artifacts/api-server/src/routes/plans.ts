@@ -19,6 +19,9 @@ function formatPlan(p: typeof plansTable.$inferSelect) {
     popular: p.popular,
     description: p.description,
     hardwarePrice: p.hardwarePrice ? parseFloat(p.hardwarePrice) : undefined,
+    localPrices: (p.localPrices && Object.keys(p.localPrices as object).length > 0)
+      ? p.localPrices as Record<string, { monthly: number; hardware?: number }>
+      : undefined,
     createdAt: p.createdAt,
   };
 }

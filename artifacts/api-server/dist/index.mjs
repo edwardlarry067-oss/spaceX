@@ -52196,6 +52196,7 @@ function formatPlan(p) {
     popular: p.popular,
     description: p.description,
     hardwarePrice: p.hardwarePrice ? parseFloat(p.hardwarePrice) : void 0,
+    localPrices: p.localPrices && Object.keys(p.localPrices).length > 0 ? p.localPrices : void 0,
     createdAt: p.createdAt
   };
 }
