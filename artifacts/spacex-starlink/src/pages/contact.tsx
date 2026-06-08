@@ -10,11 +10,11 @@ const EMAIL = "support@orbitfuture.com";
 
 const PAYMENT_OPTIONS = [
   {
-    id: "stripe",
-    label: "Stripe",
-    desc: "Visa, Mastercard, Amex, Apple Pay, Google Pay — all major cards",
+    id: "paystack",
+    label: "Paystack",
+    desc: "Visa, Mastercard, Bank Transfer, USSD, Mobile Money — all major cards",
     icon: CreditCard,
-    color: "#635BFF",
+    color: "#00C3F7",
   },
   {
     id: "wallet",
@@ -27,7 +27,7 @@ const PAYMENT_OPTIONS = [
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", plan: "", message: "" });
-  const [selectedPayment, setSelectedPayment] = useState("stripe");
+  const [selectedPayment, setSelectedPayment] = useState("paystack");
   const [sent, setSent] = useState(false);
 
   const handleWhatsApp = () => {

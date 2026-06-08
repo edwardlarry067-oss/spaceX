@@ -87,8 +87,7 @@ router.get("/admin/stats", adminAuth, async (req, res): Promise<void> => {
         planName: r.plan?.name ?? "",
         planCategory: r.plan?.category ?? "",
         priceMonthly: r.plan ? parseFloat(r.plan.priceMonthly) : 0,
-        stripeSubscriptionId: r.sub.stripeSubscriptionId,
-        stripeCustomerId: r.sub.stripeCustomerId,
+        paystackReference: r.sub.paystackReference,
         status: r.sub.status,
         address: r.sub.address,
         createdAt: r.sub.createdAt,
@@ -112,8 +111,8 @@ router.get("/admin/plans", adminAuth, async (req, res): Promise<void> => {
         speed: p.speed,
         priceMonthly: parseFloat(p.priceMonthly),
         features: p.features,
-        stripePriceId: p.stripePriceId,
-        stripePaymentLink: p.stripePaymentLink,
+        paystackPlanCode: p.paystackPlanCode,
+        paystackPaymentLink: p.paystackPaymentLink,
         active: p.active,
         popular: p.popular,
         description: p.description,
@@ -129,15 +128,15 @@ router.get("/admin/plans", adminAuth, async (req, res): Promise<void> => {
 
 router.post("/admin/plans", adminAuth, async (req, res): Promise<void> => {
   try {
-    const { name, category, speed, priceMonthly, features, stripePriceId, stripePaymentLink, popular, description, hardwarePrice } =
+    const { name, category, speed, priceMonthly, features, paystackPlanCode, paystackPaymentLink, popular, description, hardwarePrice } =
       req.body as {
         name: string;
         category: string;
         speed: string;
         priceMonthly: number;
         features: string[];
-        stripePriceId?: string;
-        stripePaymentLink?: string;
+        paystackPlanCode?: string;
+        paystackPaymentLink?: string;
         popular?: boolean;
         description: string;
         hardwarePrice?: number;
@@ -150,8 +149,8 @@ router.post("/admin/plans", adminAuth, async (req, res): Promise<void> => {
         speed,
         priceMonthly: String(priceMonthly),
         features: features ?? [],
-        stripePriceId,
-        stripePaymentLink,
+        paystackPlanCode,
+        paystackPaymentLink,
         popular: popular ?? false,
         description,
         hardwarePrice: hardwarePrice ? String(hardwarePrice) : null,
@@ -181,8 +180,8 @@ router.patch("/admin/plans/:id", adminAuth, async (req, res): Promise<void> => {
     if (body.speed !== undefined) updateData.speed = body.speed;
     if (body.priceMonthly !== undefined) updateData.priceMonthly = String(body.priceMonthly);
     if (body.features !== undefined) updateData.features = body.features;
-    if (body.stripePriceId !== undefined) updateData.stripePriceId = body.stripePriceId;
-    if (body.stripePaymentLink !== undefined) updateData.stripePaymentLink = body.stripePaymentLink;
+    if (body.paystackPlanCode !== undefined) updateData.paystackPlanCode = body.paystackPlanCode;
+    if (body.paystackPaymentLink !== undefined) updateData.paystackPaymentLink = body.paystackPaymentLink;
     if (body.active !== undefined) updateData.active = body.active;
     if (body.popular !== undefined) updateData.popular = body.popular;
     if (body.description !== undefined) updateData.description = body.description;

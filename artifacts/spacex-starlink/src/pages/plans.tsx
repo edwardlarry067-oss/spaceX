@@ -17,7 +17,7 @@ type Plan = {
   priceMonthly: number;
   hardwarePrice?: number;
   features: string[];
-  stripePaymentLink?: string | null;
+  paystackPaymentLink?: string | null;
   popular: boolean;
   active: boolean;
   description: string;
@@ -110,38 +110,11 @@ export default function Plans() {
   const filtered = activeCategory === "all" ? plans : plans.filter((p) => p.category === activeCategory);
 
   const handleGetStarted = async (plan: Plan) => {
-    if (plan.stripePaymentLink) {
-      window.location.href = plan.stripePaymentLink;
+    if (plan.paystackPaymentLink) {
+      window.location.href = plan.paystackPaymentLink;
       return;
     }
     navigate(`/checkout?planId=${plan.id}`);
-  };
-
-  const handleStripePay = async (plan: Plan) => {
-    setPayingPlanId(plan.id);
-    try {
-      const name = localStorage.getItem("orbit_name") || "";
-      const email = localStorage.getItem("orbit_email") || "";
-      if (!name || !email) {
-        navigate(`/checkout?planId=${plan.id}`);
-        setPayingPlanId(null);
-        return;
-      }
-      const res = await fetch(`${getApiBase()}/api/stripe-plan-pay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan.id, email, name }),
-      });
-      const data = await res.json();
-      if (data.paymentLink) {
-        window.location.href = data.paymentLink;
-      } else {
-        navigate(`/checkout?planId=${plan.id}`);
-      }
-    } catch {
-      navigate(`/checkout?planId=${plan.id}`);
-    }
-    setPayingPlanId(null);
   };
 
   const totalCost = (plan: Plan) => {
@@ -291,7 +264,7 @@ export default function Plans() {
                       )}
                     </Button>
                     <p className="text-center text-[10px] text-gray-600 mt-2 uppercase tracking-widest">
-                      Stripe · Secure Checkout · Cancel Anytime
+                      Paystack · Secure Checkout · Cancel Anytime
                     </p>
                   </div>
                 </div>

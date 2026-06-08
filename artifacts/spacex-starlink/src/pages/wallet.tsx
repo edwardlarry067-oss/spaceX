@@ -23,10 +23,10 @@ type Wallet = {
 };
 
 const BUNDLES = [
-  { id: "starter", name: "Starter", tokens: 100, price: "$5" },
-  { id: "basic", name: "Basic", tokens: 250, price: "$10" },
-  { id: "standard", name: "Standard", tokens: 700, price: "$25", badge: "Best Value" },
-  { id: "premium", name: "Premium", tokens: 1500, price: "$50", badge: "Popular" },
+  { id: "starter",    name: "Starter",    tokens: 100,  price: "$5" },
+  { id: "basic",      name: "Basic",      tokens: 250,  price: "$10" },
+  { id: "standard",   name: "Standard",   tokens: 700,  price: "$25", badge: "Best Value" },
+  { id: "premium",    name: "Premium",    tokens: 1500, price: "$50", badge: "Popular" },
   { id: "enterprise", name: "Enterprise", tokens: 3500, price: "$100", badge: "Most Tokens" },
 ];
 
@@ -59,13 +59,13 @@ export default function Wallet() {
     refreshWallet(user.email);
   }, [user, refreshWallet]);
 
-  // Handle Stripe return after token purchase
+  // Handle Paystack return after token purchase
   useEffect(() => {
     if (!user || !token) return;
     const params = new URLSearchParams(window.location.search);
-    const success = params.get("stripe_token_success");
-    const sessionId = params.get("session_id");
-    const cancelled = params.get("stripe_token_cancel");
+    const success = params.get("paystack_token_success");
+    const reference = params.get("reference");
+    const cancelled = params.get("paystack_token_cancel");
 
     if (cancelled) {
       setToastMsg({ type: "error", text: "Payment cancelled." });
@@ -73,12 +73,12 @@ export default function Wallet() {
       return;
     }
 
-    if (success && sessionId) {
+    if (success && reference) {
       window.history.replaceState({}, "", "/wallet");
-      fetch(`${getApiBase()}/api/stripe-token-verify`, {
+      fetch(`${getApiBase()}/api/paystack-token-verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ session_id: sessionId }),
+        body: JSON.stringify({ reference }),
       })
         .then((r) => r.json())
         .then((data) => {
@@ -104,7 +104,7 @@ export default function Wallet() {
     if (!token) return;
     setPaymentLoading(bundleId);
     try {
-      const res = await fetch(`${getApiBase()}/api/stripe-token-buy`, {
+      const res = await fetch(`${getApiBase()}/api/paystack-token-buy`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ bundleId }),
@@ -167,7 +167,7 @@ export default function Wallet() {
           </Card>
 
           <div className="lg:col-span-2">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Buy Tokens</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Buy Tokens via Paystack</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {BUNDLES.map((bundle) => (
                 <div

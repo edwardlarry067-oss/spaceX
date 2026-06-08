@@ -10,7 +10,7 @@ export interface ParsedOrder {
   planName: string | null;
   planPrice: string | null;
   hardwarePrice: string | null;
-  paymentMethod: "stripe" | "paystack" | "wallet";
+  paymentMethod: "paystack" | "wallet";
   rawMessage: string;
   isOrderRequest: boolean;
 }
@@ -26,7 +26,7 @@ export function parseWhatsAppMessage(body: string, from: string, profileName?: s
   let planName: string | null = null;
   let planPrice: string | null = null;
   let hardwarePrice: string | null = null;
-  let paymentMethod: "stripe" | "paystack" | "wallet" = "stripe";
+  let paymentMethod: "paystack" | "wallet" = "paystack";
 
   if (isOrderRequest) {
     const planMatch = body.match(/Plan:\*?\s*(.+)/i);
@@ -45,7 +45,7 @@ export function parseWhatsAppMessage(body: string, from: string, profileName?: s
     } else if (/orbit wallet|token|wallet/i.test(prefLine)) {
       paymentMethod = "wallet";
     } else {
-      paymentMethod = "stripe";
+      paymentMethod = "paystack";
     }
   }
 
@@ -97,8 +97,7 @@ router.post("/webhook/whatsapp", async (req, res): Promise<void> => {
     const hw = parsed.hardwarePrice ? ` + $${parsed.hardwarePrice} hardware kit` : "";
     const pmLabel =
       parsed.paymentMethod === "paystack" ? "Paystack"
-      : parsed.paymentMethod === "wallet" ? "Orbit Wallet"
-      : "Stripe";
+      : "Orbit Wallet";
 
     res.send(twiml(
       `✅ *Order Received — #${order.id}*\n\n` +

@@ -69,7 +69,7 @@ router.post("/checkout/wallet-pay", async (req, res): Promise<void> => {
         planId,
         address: address ?? null,
         status: "active",
-        stripeSessionId: `wallet_${Date.now()}`,
+        paystackReference: `wallet_${Date.now()}`,
       })
       .returning();
 
@@ -108,9 +108,8 @@ router.post("/checkout/wallet-pay", async (req, res): Promise<void> => {
   }
 });
 
-// ── Legacy Stripe endpoints — removed, Flutterwave is the only payment method ─
 router.post("/checkout/session", (_req, res) => {
-  res.status(410).json({ error: "Stripe checkout removed. Use Flutterwave on the Plans page." });
+  res.status(410).json({ error: "Legacy checkout removed. Use Paystack on the Plans page." });
 });
 
 router.get("/checkout/success", (_req, res) => {

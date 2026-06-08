@@ -33,9 +33,9 @@ const FAQS = [
   {
     category: "Payments & Billing",
     items: [
-      { q: "What payment methods are accepted?", a: "We accept all major credit and debit cards (Visa, Mastercard, Amex) via Stripe. You can also use your Orbit Wallet token balance to pay for subscriptions." },
-      { q: "Is my payment information secure?", a: "Yes. All payments are processed by Stripe, a PCI-DSS Level 1 certified payment processor. Your card details are never stored on our servers." },
-      { q: "What is the Orbit Wallet?", a: "The Orbit Wallet lets you pre-load tokens that can be used to activate or renew plans instantly without needing a credit card at checkout. Tokens can be purchased via Stripe." },
+      { q: "What payment methods are accepted?", a: "We accept Visa, Mastercard, Bank Transfer, USSD, and Mobile Money via Paystack. You can also use your Orbit Wallet token balance to pay for subscriptions." },
+      { q: "Is my payment information secure?", a: "Yes. All payments are processed by Paystack, a PCI-DSS certified payment processor. Your card details are never stored on our servers." },
+      { q: "What is the Orbit Wallet?", a: "The Orbit Wallet lets you pre-load tokens that can be used to activate or renew plans instantly without needing a credit card at checkout. Tokens can be purchased via Paystack." },
       { q: "When will I be charged?", a: "Hardware is charged once at order time. Monthly service fees are billed on the same day each month from your subscription start date." },
     ],
   },

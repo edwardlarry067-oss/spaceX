@@ -32,7 +32,7 @@ const planSchema = z.object({
   hardwarePrice: z.coerce.number().min(0),
   description: z.string().min(1, "Description is required"),
   features: z.string().min(1, "Features are required (comma separated)"),
-  stripePaymentLink: z.string().optional(),
+  paystackPaymentLink: z.string().optional(),
   popular: z.boolean().default(false),
 });
 
@@ -47,7 +47,7 @@ type Plan = {
   hardwarePrice?: number;
   description: string;
   features: string[];
-  stripePaymentLink?: string | null;
+  paystackPaymentLink?: string | null;
   popular: boolean;
   active: boolean;
 };
@@ -167,19 +167,19 @@ function PlanForm({
 
         <FormField
           control={form.control}
-          name="stripePaymentLink"
+          name="paystackPaymentLink"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Stripe Payment Link</FormLabel>
+              <FormLabel>Paystack Payment Link</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="https://buy.stripe.com/..."
+                  placeholder="https://paystack.com/pay/..."
                   {...field}
                   value={field.value ?? ""}
                 />
               </FormControl>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Paste your Stripe payment link — customers will be redirected here when they click "Get Started".
+                Paste your Paystack payment link — customers will be redirected here when they click "Get Started".
               </p>
               <FormMessage />
             </FormItem>
@@ -229,7 +229,7 @@ export default function AdminPlans() {
         data: {
           ...data,
           features: data.features.split(",").map(f => f.trim()).filter(Boolean),
-          stripePaymentLink: data.stripePaymentLink?.trim() || undefined,
+          paystackPaymentLink: data.paystackPaymentLink?.trim() || undefined,
         }
       },
       {
@@ -253,7 +253,7 @@ export default function AdminPlans() {
         data: {
           ...data,
           features: data.features.split(",").map(f => f.trim()).filter(Boolean),
-          stripePaymentLink: data.stripePaymentLink?.trim() || undefined,
+          paystackPaymentLink: data.paystackPaymentLink?.trim() || undefined,
         }
       },
       {
@@ -308,7 +308,7 @@ export default function AdminPlans() {
                 hardwarePrice: 0,
                 description: "",
                 features: "",
-                stripePaymentLink: "",
+                paystackPaymentLink: "",
                 popular: false,
               }}
               onSubmit={handleCreate}
@@ -335,7 +335,7 @@ export default function AdminPlans() {
                 hardwarePrice: editingPlan.hardwarePrice ?? 0,
                 description: editingPlan.description,
                 features: editingPlan.features.join(", "),
-                stripePaymentLink: editingPlan.stripePaymentLink ?? "",
+                paystackPaymentLink: editingPlan.paystackPaymentLink ?? "",
                 popular: editingPlan.popular,
               }}
               onSubmit={handleEdit}
@@ -382,12 +382,12 @@ export default function AdminPlans() {
                     {plan.hardwarePrice ? <div className="text-xs text-muted-foreground">${plan.hardwarePrice} hw</div> : null}
                   </TableCell>
                   <TableCell>
-                    {plan.stripePaymentLink ? (
+                    {plan.paystackPaymentLink ? (
                       <a
-                        href={plan.stripePaymentLink}
+                        href={plan.paystackPaymentLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-[#635bff] hover:underline font-mono"
+                        className="inline-flex items-center gap-1 text-xs text-[#00c3f7] hover:underline font-mono"
                       >
                         <ExternalLink className="w-3 h-3 shrink-0" />
                         Configured

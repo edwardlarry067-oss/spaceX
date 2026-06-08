@@ -6,7 +6,7 @@ import { adminAuth } from "../middlewares/adminAuth";
 
 const router = Router();
 
-const VALID_PAYMENT_METHODS = ["stripe", "paystack", "wallet"] as const;
+const VALID_PAYMENT_METHODS = ["paystack", "wallet"] as const;
 const VALID_STATUSES = ["pending", "paid", "shipped", "delivered", "cancelled"] as const;
 
 type PaymentMethod = typeof VALID_PAYMENT_METHODS[number];
@@ -32,7 +32,7 @@ router.post("/admin/whatsapp-orders", adminAuth, async (req, res): Promise<void>
       res.status(400).json({ error: "Missing required fields: customerName, customerPhone, planName, planPrice" });
       return;
     }
-    const paymentMethod: PaymentMethod = VALID_PAYMENT_METHODS.includes(b.paymentMethod) ? b.paymentMethod : "stripe";
+    const paymentMethod: PaymentMethod = VALID_PAYMENT_METHODS.includes(b.paymentMethod) ? b.paymentMethod : "paystack";
     const paymentStatus: PaymentStatus = VALID_STATUSES.includes(b.paymentStatus) ? b.paymentStatus : "pending";
 
     const [order] = await db

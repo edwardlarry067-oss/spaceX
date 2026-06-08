@@ -9,19 +9,19 @@ import { KeyRound, CheckCircle2, AlertCircle, Eye, EyeOff, Loader2 } from "lucid
 
 const FIELDS = [
   {
-    key: "STRIPE_SECRET_KEY",
-    label: "Stripe Secret Key",
+    key: "PAYSTACK_SECRET_KEY",
+    label: "Paystack Secret Key",
     placeholder: "sk_live_... or sk_test_...",
-    hint: "dashboard.stripe.com → Developers → API Keys → Secret key",
-    provider: "Stripe",
+    hint: "dashboard.paystack.com → Settings → API Keys & Webhooks → Secret Key",
+    provider: "Paystack",
     isLink: false,
   },
   {
-    key: "STRIPE_WEBHOOK_SECRET",
-    label: "Stripe Webhook Secret",
-    placeholder: "whsec_...",
-    hint: "dashboard.stripe.com → Developers → Webhooks → Signing secret",
-    provider: "Stripe",
+    key: "PAYSTACK_WEBHOOK_SECRET",
+    label: "Paystack Webhook Secret",
+    placeholder: "Your Paystack webhook signing secret",
+    hint: "dashboard.paystack.com → Settings → API Keys & Webhooks → Webhook URL secret",
+    provider: "Paystack",
     isLink: false,
   },
   {

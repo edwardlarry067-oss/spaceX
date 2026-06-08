@@ -7,8 +7,8 @@ export type Plan = {
   hardwarePrice?: number;
   description: string;
   features: string[];
-  stripePriceId?: string | null;
-  stripePaymentLink?: string | null;
+  paystackPlanCode?: string | null;
+  paystackPaymentLink?: string | null;
   popular: boolean;
   active: boolean;
   createdAt: string;
@@ -24,8 +24,7 @@ export type Subscription = {
   planSpeed: string;
   priceMonthly: number;
   features: string[];
-  stripeSubscriptionId?: string | null;
-  stripeCustomerId?: string | null;
+  paystackReference?: string | null;
   status: string;
   address?: string | null;
   createdAt: string;
