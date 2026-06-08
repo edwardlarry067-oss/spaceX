@@ -1,7 +1,7 @@
 {
   "version": 2,
   "framework": null,
-  "installCommand": "corepack enable && corepack prepare pnpm@10.26.1 --activate",
+  "installCommand": "npm install -g pnpm@10.26.1",
   "buildCommand": "cd artifacts && pnpm install --no-frozen-lockfile && pnpm --filter @workspace/spacex-starlink run build",
   "outputDirectory": "artifacts/spacex-starlink/dist",
   "rewrites": [
