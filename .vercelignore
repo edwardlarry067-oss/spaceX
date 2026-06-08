@@ -1,0 +1,15 @@
+node_modules
+artifacts/node_modules
+artifacts/api-server/node_modules
+artifacts/spacex-starlink/node_modules
+artifacts/lib/node_modules
+artifacts/mobile/node_modules
+artifacts/mockup-sandbox/node_modules
+artifacts/api-server/dist
+artifacts/spacex-starlink/dist
+.git
+.agents
+.local
+**/*.map
+**/coverage
+**/.turbo
