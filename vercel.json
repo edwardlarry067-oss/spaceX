@@ -1,8 +1,8 @@
 {
   "version": 2,
   "framework": null,
-  "installCommand": "npm install -g pnpm@10.26.1",
-  "buildCommand": "cd artifacts && pnpm install --no-frozen-lockfile && pnpm --filter @workspace/spacex-starlink run build",
+  "installCommand": "npm install -g pnpm@10.26.1 --force",
+  "buildCommand": "export PATH=\"$(npm root -g)/.bin:$PATH\" && cd artifacts && pnpm install --no-frozen-lockfile && pnpm --filter @workspace/spacex-starlink run build",
   "outputDirectory": "artifacts/spacex-starlink/dist",
   "rewrites": [
     {
