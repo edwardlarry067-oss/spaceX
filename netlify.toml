@@ -4,9 +4,18 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  # Leave VITE_API_URL empty — frontend uses relative /api/* paths
-  # Netlify proxies those server-side to the Replit backend via _redirects
   VITE_API_URL = ""
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://orbitfuture--Orbitfuture.replit.app/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
   for = "/*"

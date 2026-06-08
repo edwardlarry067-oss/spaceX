@@ -8,7 +8,7 @@ import { readFileSync, existsSync } from 'fs';
 
 const TOKEN = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
 const OWNER = 'edwardlarry067-oss';
-const REPO = 'spaceX';
+const REPO = 'orbitfuture';
 const BRANCH = 'main';
 
 if (!TOKEN) {
