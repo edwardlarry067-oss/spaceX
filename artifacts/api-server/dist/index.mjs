@@ -53186,6 +53186,7 @@ router5.patch("/admin/plans/:id", adminAuth, async (req, res) => {
     if (body.description !== void 0) updateData.description = body.description;
     if (body.hardwarePrice !== void 0)
       updateData.hardwarePrice = body.hardwarePrice ? String(body.hardwarePrice) : null;
+    if (body.localPrices !== void 0) updateData.localPrices = body.localPrices;
     const [updated] = await db.update(plansTable).set(updateData).where(eq(plansTable.id, id)).returning();
     if (!updated) {
       res.status(404).json({ error: "Plan not found" });
