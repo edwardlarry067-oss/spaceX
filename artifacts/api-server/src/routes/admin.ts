@@ -188,6 +188,7 @@ router.patch("/admin/plans/:id", adminAuth, async (req, res): Promise<void> => {
     if (body.description !== undefined) updateData.description = body.description;
     if (body.hardwarePrice !== undefined)
       updateData.hardwarePrice = body.hardwarePrice ? String(body.hardwarePrice) : null;
+    if (body.localPrices !== undefined) updateData.localPrices = body.localPrices;
 
     const [updated] = await db
       .update(plansTable)
